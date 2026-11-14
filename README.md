@@ -68,3 +68,16 @@ npm run ios             # Xcode가 열리면 ▶ 실행, 배포는 Product → A
 ## 사용한 오픈소스
 
 jsPDF, html2canvas, JSZip, PDF.js, OpenSheetMusicDisplay, Capacitor — 각 라이선스(MIT/Apache-2.0/BSD)를 따릅니다.
+
+## 피아노 연습 (web/piano)
+
+MR·녹음 파일을 올리면 Spotify Basic Pitch(Apache-2.0, 브라우저 안에서 실행)로 음을 찾아
+「떨어지는 건반」과 「피아노 타일」 연습 화면으로 바꿉니다.
+
+- 입력: mp3·m4a·wav, MIDI 파일(가장 정확), 연습 파일(.json)
+- 연주: 화면 터치 · PC 키보드(A~; 흰 건반, W E T Y U O P 검은 건반, 타일은 D F J K) · 전자피아노(USB, Chrome·Edge)
+- 「기다려 주기」: 맞는 건반을 누를 때까지 멈춰서 기다림 / 속도 50·75·100%
+- 「연습 파일 저장」: 음표 + MR을 한 파일로 → 아이들은 변환 없이 바로 열기
+- 「MIDI로 저장」: MuseScore 등에서 악보로 열 수 있음
+
+번들 다시 만들기: `@spotify/basic-pitch`, `@tonejs/midi` 를 esbuild로 묶어 `web/piano/vendor/bp.bundle.js`

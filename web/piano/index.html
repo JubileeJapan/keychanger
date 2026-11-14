@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>피아노 연습 — MR을 건반·타일로</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#c2410c">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="vendor/bp.bundle.js"></script>
+<style>
+:root{--bg:#f6f4ef;--panel:#fff;--ink:#1d1b18;--muted:#6f6a62;--line:#e4dfd5;--accent:#c2410c;--soft:#fdeee4;--rh:#f08a3c;--lh:#4f8fd8;--good:#16a34a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;font-size:14px}
+button,select,input{font:inherit;color:inherit}
+.hidden{display:none!important}
+header.top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{font-weight:900;font-size:17px;display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+.logo .mark{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center}
+.top a.link{margin-left:auto;color:var(--muted);text-decoration:none;font-size:13px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:hover{border-color:#cfc8ba}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:default}
+/* ---------- 곡 목록 ---------- */
+#home{max-width:960px;margin:0 auto;padding:24px 18px 60px}
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;margin-bottom:22px}
+.hero h1{font-size:28px;margin:0 0 8px;letter-spacing:-.02em}
+.hero p{color:var(--muted);margin:0;line-height:1.7}
+.drop{border:2px dashed #d4cdbf;border-radius:16px;padding:26px;text-align:center;background:#fff;cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--soft)}
+.drop b{font-size:16px}
+.drop small{display:block;color:var(--muted);margin-top:6px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+h2.sec{font-size:15px;margin:26px 0 10px}
+.songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.song{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.song .t{font-weight:700;font-size:15px;word-break:break-all}
+.song .m{color:var(--muted);font-size:12px}
+.song .row{display:flex;gap:6px;flex-wrap:wrap}
+.empty{color:var(--muted);text-align:center;padding:30px;border:1px dashed var(--line);border-radius:14px;background:#fff}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.steps div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;color:var(--muted);line-height:1.6}
+.steps b{color:var(--ink);display:block;margin-bottom:2px}
+/* 진행 */
+.busy{position:fixed;inset:0;background:rgba(246,244,239,.85);display:none;place-items:center;z-index:50}
+.busy.show{display:grid}
+.busy .card{min-width:300px;text-align:center}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+/* ---------- 연습 화면 ---------- */
+#play{position:fixed;inset:0;display:flex;flex-direction:column;background:#14161c;color:#fff}
+.pbar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1d2029;flex-wrap:wrap}
+.pbar .t{font-weight:700;margin-right:6px;max-width:30vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .btn{background:#2a2e3a;border-color:#3a3f4d;color:#fff}
+.pbar .btn.on{background:var(--accent);border-color:var(--accent)}
+.seg{display:inline-flex;background:#2a2e3a;border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:#cfd3dc;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+.seg button.on{background:#fff;color:#14161c;font-weight:700}
+.pbar .sp{flex:1}
+.score{font-weight:900;font-size:16px;min-width:90px;text-align:right}
+.combo{font-size:12px;color:#ffb27a}
+#stage{position:relative;flex:1;min-height:0}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.prog{height:6px;background:#2a2e3a;cursor:pointer;position:relative}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.toast{position:absolute;left:50%;top:22%;transform:translate(-50%,-50%);font-size:40px;font-weight:900;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .2s}
+.toast.show{opacity:1}
+.result{position:absolute;inset:0;background:rgba(20,22,28,.85);display:grid;place-items:center}
+.result .card{background:#fff;color:var(--ink);text-align:center;min-width:280px}
+.result .big{font-size:44px;font-weight:900;color:var(--accent)}
+.stars{font-size:30px;letter-spacing:4px}
+.opts{display:flex;gap:8px;align-items:center;font-size:12px;color:#cfd3dc}
+.opts input[type=range]{width:90px}
+.hint{position:absolute;left:10px;top:8px;font-size:11px;color:#8b91a1;pointer-events:none}
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .pbar .t{max-width:40vw}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 곡 목록 / 올리기 ================= -->
+<div id="home">
+  <header class="top" style="margin:-24px -18px 22px;padding:12px 18px">
+    <a class="logo" href="../"><span class="mark">♪</span>피아노 연습</a>
+    <a class="link" href="../app/">키 체인저 →</a>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>MR을 올리면<br>피아노 연습 게임이 돼요</h1>
+      <p>찬양 MR(반주 음원)이나 녹음 파일을 올리면, 음을 자동으로 찾아서 <b>떨어지는 건반</b>과 <b>피아노 타일</b>로 바꿔 줘요. 태블릿·휴대폰은 화면을 누르고, PC는 키보드로, 전자피아노는 USB로 연결해서 연주해요.</p>
+    </div>
+    <div>
+      <div class="drop" id="drop">
+        <b>🎵 MR·녹음 파일 올리기</b>
+        <small>mp3 · m4a · wav · (MIDI 파일 · 연습 파일 .json도 가능)</small>
+      </div>
+      <input type="file" id="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.mid,.midi,.json" hidden>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div><b>1. 올리기</b>MR을 올리면 1~3분 정도 음을 찾아요. 한 번 바꾼 곡은 이 기기에 저장돼요.</div>
+    <div><b>2. 연습하기</b>「건반」은 실제 피아노 자리 연습, 「타일」은 박자 게임이에요. 속도를 줄여서 시작해 보세요.</div>
+    <div><b>3. 나눠 주기</b>「연습 파일 저장」으로 받은 파일을 아이들에게 보내면, 아이들은 변환 없이 바로 열어요.</div>
+  </div>
+
+  <h2 class="sec">저장된 곡</h2>
+  <div id="songs" class="songs"></div>
+</div>
+
+<!-- ================= 연습 화면 ================= -->
+<div id="play" class="hidden">
+  <div class="pbar">
+    <button class="btn sm" id="back">← 곡 목록</button>
+    <span class="t" id="ptitle"></span>
+    <div class="seg" id="modeSeg"><button data-v="keys" class="on">🎹 건반</button><button data-v="tiles">⬛ 타일</button></div>
+    <div class="seg" id="handSeg"><button data-v="melody" class="on">멜로디</button><button data-v="both">양손</button></div>
+    <div class="seg" id="speedSeg"><button data-v="0.5">50%</button><button data-v="0.75">75%</button><button data-v="1" class="on">100%</button></div>
+    <button class="btn sm" id="waitBtn" title="맞는 건반을 누를 때까지 기다려요">⏸ 기다려 주기</button>
+    <span class="sp"></span>
+    <div class="opts">
+      <label>MR <input type="range" id="mrVol" min="0" max="1" step="0.05" value="0.8"></label>
+      <label>멜로디 소리 <input type="checkbox" id="guideSnd"></label>
+      <label>계이름 <input type="checkbox" id="names" checked></label>
+    </div>
+    <div><div class="score" id="score">0</div><div class="combo" id="combo"></div></div>
+    <button class="btn sm on" id="playBtn" style="min-width:70px">▶ 시작</button>
+    <button class="btn sm" id="moreBtn">⋯</button>
+  </div>
+  <div class="prog" id="prog"><i id="progFill"></i></div>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div class="toast" id="toast"></div>
+    <div class="hint" id="hint"></div>
+    <div class="result hidden" id="result"><div class="card">
+      <div class="stars" id="rStars"></div>
+      <div class="big" id="rScore"></div>
+      <div id="rDetail" style="color:var(--muted);margin:6px 0 14px"></div>
+      <button class="btn primary" id="again">다시 하기</button>
+    </div></div>
+  </div>
+</div>
+
+<!-- 더보기 메뉴 -->
+<div class="busy" id="more"><div class="card" style="text-align:left;min-width:300px;max-width:92vw">
+  <b style="font-size:15px">곡 설정</b>
+  <div style="margin:12px 0 4px;font-size:13px">음 찾기 감도 <span id="sensVal" style="color:var(--muted)"></span></div>
+  <input type="range" id="sens" min="0.1" max="0.7" step="0.05" value="0.4" style="width:100%">
+  <div style="font-size:12px;color:var(--muted);line-height:1.6">낮추면 음이 많아지고(잡음 포함), 높이면 또렷한 음만 남아요. MR에서 바로 바꾼 곡에서만 조절할 수 있어요.</div>
+  <div style="margin:14px 0 6px;font-size:13px">악보 위치 맞추기 (MR과 음이 어긋날 때)</div>
+  <div style="display:flex;gap:6px;align-items:center"><button class="btn sm" id="offM">− 0.05초</button><span id="offVal" style="min-width:60px;text-align:center">0.00초</span><button class="btn sm" id="offP">+ 0.05초</button></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+    <button class="btn sm" id="saveJson">📦 연습 파일 저장</button>
+    <button class="btn sm" id="saveMidi">🎼 MIDI로 저장</button>
+    <button class="btn sm" id="midiConnect">🎹 전자피아노 연결</button>
+  </div>
+  <div id="midiStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+  <div style="text-align:right;margin-top:14px"><button class="btn sm primary" id="moreClose">닫기</button></div>
+</div></div>
+
+<div class="busy" id="busy"><div class="card">
+  <div id="busyMsg" style="font-weight:700">처리 중…</div>
+  <div id="busySub" style="color:var(--muted);font-size:12px;margin-top:4px"></div>
+  <div class="bar"><i id="busyBar"></i></div>
+</div></div>
+
+<script>
+/* ======================= 공통 ======================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const NAMES_KO=['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
+const isBlack=p=>[1,3,6,8,10].includes(((p%12)+12)%12);
+function busy(on,msg,sub){ $('#busy').classList.toggle('show',!!on); if(msg) $('#busyMsg').textContent=msg; $('#busySub').textContent=sub||''; if(!on) $('#busyBar').style.width='0'; }
+function bar(p){ $('#busyBar').style.width=Math.round(p*100)+'%'; }
+function download(name, blob){ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),30000); }
+const safeName=s=>(s||'곡').replace(/[\\/:*?"<>|]/g,'_');
+
+/* ======================= 저장소 (이 기기 안 IndexedDB) ======================= */
+const DB={ db:null,
+  open(){ return this.db ? Promise.resolve(this.db) : new Promise((res,rej)=>{ const r=indexedDB.open('kc-piano',1); r.onupgradeneeded=()=>r.result.createObjectStore('songs',{keyPath:'id'}); r.onsuccess=()=>{ this.db=r.result; res(this.db); }; r.onerror=()=>rej(r.error); }); },
+  async all(){ const db=await this.open(); return new Promise(res=>{ const q=db.transaction('songs').objectStore('songs').getAll(); q.onsuccess=()=>res(q.result.sort((a,b)=>b.created-a.created)); q.onerror=()=>res([]); }); },
+  async put(s){ const db=await this.open(); return new Promise((res,rej)=>{ const t=db.transaction('songs','readwrite'); t.objectStore('songs').put(s); t.oncomplete=res; t.onerror=()=>rej(t.error); }); },
+  async del(id){ const db=await this.open(); return new Promise(res=>{ const t=db.transaction('songs','readwrite'); t.objectStore('songs').delete(id); t.oncomplete=res; }); }
+};
+
+/* ======================= 곡 목록 ======================= */
+async function renderSongs(){
+  let list=[]; try{ list=await DB.all(); }catch(e){}
+  const el=$('#songs');
+  if(!list.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">아직 곡이 없어요. 위에서 MR을 올려 보세요.</div>'; return; }
+  el.innerHTML=list.map(s=>`<div class="song"><div class="t">${esc(s.title)}</div>
+    <div class="m">${s.notes.length}개 음 · ${fmtTime(s.duration)}${s.audio?' · MR 포함':''}</div>
+    <div class="row"><button class="btn sm primary" data-play="${s.id}">▶ 연습하기</button><button class="btn sm" data-del="${s.id}">삭제</button></div></div>`).join('');
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtTime=t=>{ t=Math.max(0,t||0); return `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`; };
+$('#songs').addEventListener('click', async e=>{
+  const p=e.target.closest('[data-play]'), d=e.target.closest('[data-del]');
+  if(p){ const s=(await DB.all()).find(x=>x.id===p.dataset.play); if(s) openSong(s, null); }
+  if(d && confirmDel(d)){ await DB.del(d.dataset.del); renderSongs(); }
+});
+function confirmDel(btn){ if(btn.dataset.sure){ return true; } btn.dataset.sure='1'; btn.textContent='한 번 더 누르면 삭제'; setTimeout(()=>{ delete btn.dataset.sure; btn.textContent='삭제'; },2500); return false; }
+
+/* ======================= 파일 올리기 ======================= */
+const drop=$('#drop'), fileIn=$('#file');
+drop.onclick=()=>fileIn.click();
+fileIn.onchange=()=>{ if(fileIn.files[0]) handleFile(fileIn.files[0]); fileIn.value=''; };
+drop.addEventListener('dragover',e=>{ e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+drop.addEventListener('drop',e=>{ e.preventDefault(); drop.classList.remove('over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+async function handleFile(f){
+  const name=f.name.replace(/\.[^.]+$/,'');
+  try{
+    if(/\.json$/i.test(f.name)) return importPractice(f);
+    if(/\.midi?$/i.test(f.name)) return importMidi(f, name);
+    await transcribe(f, name);
+  }catch(e){ console.error(e); busy(false); alert('파일을 처리하지 못했어요: '+(e.message||e)); }
+}
+
+/* --- MR → 음표 (Spotify Basic Pitch, 이 기기 안에서 계산) --- */
+let bpModel=null, raw=null;   // raw: 감도 조절용 원본 결과 {frames,onsets,contours}
+async function transcribe(f, name){
+  busy(true,'음원 여는 중…', f.name); bar(0.02);
+  const buf=await f.arrayBuffer();
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const decoded=await ctx.decodeAudioData(buf.slice(0));
+  ctx.close && ctx.close();
+  const duration=decoded.duration;
+  // 22050Hz 모노로 바꾸기 (모델 입력 형식)
+  const off=new OfflineAudioContext(1, Math.ceil(duration*22050), 22050);
+  const src=off.createBufferSource(); src.buffer=decoded; src.connect(off.destination); src.start();
+  const mono=await off.startRendering();
+  busy(true,'음을 찾는 중…','처음 한 번은 인식 모델을 받느라 조금 더 걸려요');
+  if(!bpModel) bpModel=new BP.BasicPitch('vendor/model/model.json');
+  const frames=[], onsets=[], contours=[];
+  const t0=performance.now();
+  await bpModel.evaluateModel(mono, (fr,on,co)=>{ frames.push(...fr); onsets.push(...on); contours.push(...co); }, p=>{
+    bar(0.05+p*0.9);
+    const el=(performance.now()-t0)/1000; if(p>0.03){ const left=el/p*(1-p); $('#busySub').textContent=`약 ${Math.ceil(left)}초 남았어요`; }
+  });
+  raw={frames,onsets,contours};
+  const notes=notesFromRaw(0.4);
+  const song={ id:'s'+Date.now(), title:name, created:Date.now(), duration, notes, audio:f, sens:0.4, offset:0 };
+  busy(true,'저장 중…'); bar(1);
+  try{ await DB.put(song); }catch(e){ console.warn('저장 실패', e); }
+  busy(false);
+  renderSongs();
+  openSong(song, raw);
+}
+function notesFromRaw(sens){
+  const ev=BP.outputToNotesPoly(raw.frames, raw.onsets, sens, Math.max(0.15,sens-0.1), 8, true, null, null, true);
+  const nt=BP.noteFramesToTime(BP.addPitchBendsToNoteEvents(raw.contours, ev));
+  return nt.map(n=>({t:+n.startTimeSeconds.toFixed(3), d:+Math.max(0.08,n.durationSeconds).toFixed(3), p:n.pitchMidi, v:+(n.amplitude||0.5).toFixed(2)}))
+           .filter(n=>n.p>=33 && n.p<=100).sort((a,b)=>a.t-b.t||b.p-a.p);
+}
+
+/* --- MIDI 파일 → 음표 (가장 정확) --- */
+async function importMidi(f, name){
+  const midi=new BP.Midi(await f.arrayBuffer());
+  const notes=[];
+  midi.tracks.forEach(tr=>{ if(tr.instrument && tr.instrument.percussion) return; tr.notes.forEach(n=>notes.push({t:+n.time.toFixed(3), d:+Math.max(0.08,n.duration).toFixed(3), p:n.midi, v:+n.velocity.toFixed(2)})); });
+  notes.sort((a,b)=>a.t-b.t||b.p-a.p);
+  const song={ id:'s'+Date.now(), title:name, created:Date.now(), duration:midi.duration, notes, audio:null, offset:0 };
+  try{ await DB.put(song); }catch(e){}
+  renderSongs(); openSong(song,null);
+}
+
+/* --- 연습 파일(.json) 주고받기: 음표 + MR을 한 파일에 --- */
+async function exportPractice(){
+  const s=cur.song;
+  let audio=null;
+  if(s.audio){ audio=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(s.audio); }); }
+  const data={ type:'kc-piano', v:1, title:s.title, duration:s.duration, offset:s.offset||0, notes:s.notes, audio };
+  download(`${safeName(s.title)} 피아노연습.json`, new Blob([JSON.stringify(data)],{type:'application/json'}));
+}
+async function importPractice(f){
+  busy(true,'연습 파일 여는 중…');
+  const d=JSON.parse(await f.text());
+  if(d.type!=='kc-piano' || !Array.isArray(d.notes)) throw new Error('피아노 연습 파일이 아니에요');
+  let audio=null;
+  if(d.audio){ audio=await (await fetch(d.audio)).blob(); }
+  const song={ id:'s'+Date.now(), title:d.title||f.name, created:Date.now(), duration:d.duration, notes:d.notes, audio, offset:d.offset||0 };
+  try{ await DB.put(song); }catch(e){}
+  busy(false); renderSongs(); openSong(song,null);
+}
+function exportMidi(){
+  const midi=new BP.Midi(); const tr=midi.addTrack(); tr.name=cur.song.title;
+  for(const n of cur.song.notes) tr.addNote({midi:n.p, time:n.t, duration:n.d, velocity:Math.min(1,Math.max(0.3,n.v))});
+  download(`${safeName(cur.song.title)}.mid`, new Blob([midi.toArray()],{type:'audio/midi'}));
+}
+
+/* ======================= 연습용 음표 고르기 ======================= */
+// 멜로디: 같은 순간에 울리는 음 중 가장 높은 음만 (MR의 반주·베이스는 빠짐)
+function pickMelody(notes){
+  const cand=notes.filter(n=>n.p>=55 && n.v>=0.25);
+  const out=[];
+  for(const n of cand){
+    const last=out[out.length-1];
+    if(last && n.t-last.t < 0.09){ if(n.p>last.p) out[out.length-1]=n; continue; }
+    if(last && n.t < last.t+last.d*0.6 && n.p < last.p) continue;      // 높은 음이 울리는 중 낮은 음은 반주로 봄
+    out.push(n);
+  }
+  return out.map(n=>({...n, hand:'R'}));
+}
+// 양손: 멜로디(오른손) + 낮은 음 한 개(왼손), 박마다 최대 3음
+function pickBoth(notes){
+  const mel=pickMelody(notes);
+  const bass=[];
+  for(const n of notes.filter(n=>n.p<55 && n.p>=36 && n.v>=0.3)){
+    const last=bass[bass.length-1];
+    if(last && n.t-last.t<0.2){ if(n.p<last.p) bass[bass.length-1]=n; continue; }
+    bass.push(n);
+  }
+  return [...mel, ...bass.map(n=>({...n,hand:'L'}))].sort((a,b)=>a.t-b.t);
+}
+
+/* ======================= 연습 화면 ======================= */
+const cur={ song:null, mode:'keys', hand:'melody', speed:1, wait:false, notes:[], audioEl:null, url:null,
+  playing:false, clock:0, lastTs:0, score:0, combo:0, maxCombo:0, hits:0, misses:0, lo:48, hi:84, waitingFor:null };
+const synth={ ctx:null,
+  ensure(){ if(!this.ctx) this.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(this.ctx.state==='suspended') this.ctx.resume(); return this.ctx; },
+  play(p, vol=0.22, len=1.1){
+    const c=this.ensure(), t=c.currentTime, f=440*Math.pow(2,(p-69)/12);
+    const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+len);
+    const o1=c.createOscillator(); o1.type='triangle'; o1.frequency.value=f;
+    const o2=c.createOscillator(); o2.type='sine'; o2.frequency.value=f*2; const g2=c.createGain(); g2.gain.value=0.3;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(c.destination);
+    o1.start(t); o2.start(t); o1.stop(t+len+0.05); o2.stop(t+len+0.05);
+  }
+};
+
+function openSong(song, rawData){
+  raw=rawData||null;
+  cur.song=song; $('#ptitle').textContent=song.title;
+  if(cur.url) URL.revokeObjectURL(cur.url);
+  cur.audioEl && cur.audioEl.pause();
+  cur.audioEl=null;
+  if(song.audio){ cur.url=URL.createObjectURL(song.audio); const a=new Audio(cur.url); a.preload='auto'; a.preservesPitch=true; a.mozPreservesPitch=true; a.webkitPreservesPitch=true; a.volume=+$('#mrVol').value; cur.audioEl=a; }
+  $('#sens').value=song.sens||0.4; $('#sensVal').textContent=raw?`(${song.sens||0.4})`:'(이 곡은 조절 불가)'; $('#sens').disabled=!raw;
+  $('#offVal').textContent=(song.offset||0).toFixed(2)+'초';
+  $('#home').classList.add('hidden'); $('#play').classList.remove('hidden');
+  prepare(); resize(); reset();
+}
+function prepare(){
+  const base=cur.song.notes;
+  const ns=(cur.hand==='melody'?pickMelody(base):pickBoth(base)).map(n=>({...n, hit:false, miss:false}));
+  // 타일 모드: 멜로디만, 음 높낮이의 흐름에 따라 4줄로
+  if(cur.mode==='tiles'){
+    const mel=pickMelody(base); let lane=1, prev=null; const tiles=[];
+    for(const n of mel){
+      // 올라가면 오른쪽, 내려가면 왼쪽. 끝에 닿으면 반대편으로 넘어가서 같은 줄이 연달아 나오지 않게
+      if(prev){
+        const step = n.p>prev.p ? 1 : n.p<prev.p ? -1 : 2;
+        let nl = lane + step;
+        if(nl>3) nl = lane===3 ? 1 : 3;
+        if(nl<0) nl = lane===0 ? 2 : 0;
+        lane = nl;
+      }
+      if(tiles.length && n.t-tiles[tiles.length-1].t<0.12) continue;
+      tiles.push({...n, lane, hit:false, miss:false}); prev=n;
+    }
+    cur.notes=tiles;
+  } else cur.notes=ns;
+  // 건반 범위: 연습 음이 다 들어가도록 (옥타브 단위)
+  if(cur.notes.length){
+    const ps=cur.notes.map(n=>n.p); let lo=Math.floor(Math.min(...ps)/12)*12, hi=Math.ceil((Math.max(...ps)+1)/12)*12-1;
+    if(hi-lo<23) hi=lo+23;
+    cur.lo=lo; cur.hi=hi;
+  }
+  cur.kbBase = cur.mode==='keys' ? Math.max(cur.lo, Math.floor((cur.notes.find(n=>n.hand==='R')||{p:60}).p/12)*12) : 60;
+  updateHint();
+}
+function reset(){
+  cur.playing=false; cur.clock=-2; cur.score=0; cur.combo=0; cur.maxCombo=0; cur.hits=0; cur.misses=0; cur.waitingFor=null;
+  cur.notes.forEach(n=>{ n.hit=false; n.miss=false; });
+  if(cur.audioEl){ cur.audioEl.pause(); try{ cur.audioEl.currentTime=0; }catch(e){} }
+  $('#result').classList.add('hidden');
+  $('#playBtn').textContent='▶ 시작'; updateScore(); draw();
+}
+function togglePlay(){
+  synth.ensure();
+  if(cur.playing){ cur.playing=false; cur.audioEl&&cur.audioEl.pause(); $('#playBtn').textContent='▶ 계속'; return; }
+  cur.playing=true; cur.lastTs=performance.now(); $('#playBtn').textContent='⏸ 멈춤';
+  requestAnimationFrame(loop);
+}
+$('#playBtn').onclick=togglePlay;
+$('#again').onclick=()=>{ reset(); togglePlay(); };
+$('#back').onclick=()=>{ cur.playing=false; cur.audioEl&&cur.audioEl.pause(); $('#play').classList.add('hidden'); $('#home').classList.remove('hidden'); renderSongs(); };
+
+// 시계: MR이 있으면 MR 재생 위치를 기준으로(음과 화면이 어긋나지 않게)
+function songTime(){ return cur.clock - (cur.song.offset||0); }
+function loop(ts){
+  if(!cur.playing) return;
+  const dt=Math.min(0.1,(ts-cur.lastTs)/1000); cur.lastTs=ts;
+  const a=cur.audioEl;
+  // 기다려 주기: 아직 안 친 음이 판정선에 오면 멈춰서 기다린다
+  const next=cur.wait && cur.mode==='keys' ? nextPending() : null;
+  const waitHere = next && songTime() >= next.t;
+  if(waitHere){
+    cur.waitingFor=next;
+    if(a && !a.paused) a.pause();
+  } else {
+    cur.waitingFor=null;
+    if(cur.clock<0 || !a){ cur.clock+=dt*cur.speed; }
+    if(a && cur.clock>=0){
+      if(a.paused){ a.playbackRate=cur.speed; a.volume=+$('#mrVol').value; try{ if(Math.abs(a.currentTime-cur.clock)>0.08) a.currentTime=cur.clock; }catch(e){} a.play().catch(()=>{}); }
+      else cur.clock=a.currentTime;
+    }
+  }
+  judgeMisses();
+  guideSounds();
+  draw();
+  $('#progFill').style.width=Math.min(100,Math.max(0,songTime()/cur.song.duration*100))+'%';
+  const end=(cur.notes.length?cur.notes[cur.notes.length-1].t+cur.notes[cur.notes.length-1].d:0)+1.5;
+  if(songTime()>Math.min(cur.song.duration+0.5, Math.max(end, 3))){ finish(); return; }
+  requestAnimationFrame(loop);
+}
+function nextPending(){ const t=songTime(); for(const n of cur.notes){ if(!n.hit && !n.miss && n.t>=t-0.6) return n; } return null; }
+let guideIdx=0;
+function guideSounds(){
+  if(!$('#guideSnd').checked){ return; }
+  const t=songTime();
+  for(const n of cur.notes){ if(!n.gs && n.t<=t && n.t>t-0.15){ n.gs=true; synth.play(n.p,0.15,Math.min(1.2,n.d+0.3)); } }
+}
+const WIN_GOOD=0.22, WIN_PERFECT=0.09;
+function judgeMisses(){
+  if(cur.wait && cur.mode==='keys') return;
+  const t=songTime();
+  for(const n of cur.notes){ if(!n.hit && !n.miss && t>n.t+WIN_GOOD+0.05){ n.miss=true; cur.misses++; cur.combo=0; updateScore(); } }
+}
+function hit(n, dt){
+  n.hit=true; cur.hits++; cur.combo++; cur.maxCombo=Math.max(cur.maxCombo,cur.combo);
+  const perfect=Math.abs(dt)<=WIN_PERFECT; cur.score+= (perfect?100:60) + Math.min(50,cur.combo*2);
+  showToast(perfect?'퍼펙트!':'좋아요'); updateScore();
+}
+// 건반을 눌렀을 때
+function pressKey(p, fromMidi){
+  if(!fromMidi) synth.play(p);
+  flashKey(p);
+  if(!cur.playing && cur.clock<-1) return;
+  const t=songTime();
+  let best=null, bd=1e9;
+  for(const n of cur.notes){ if(n.hit||n.miss||n.p!==p) continue; const d=n.t-t; if(Math.abs(d)<bd){ bd=Math.abs(d); best=n; } }
+  const win = cur.wait ? 0.6 : WIN_GOOD;
+  if(best && bd<=win) hit(best, best.t-t);
+}
+// 타일을 눌렀을 때
+function pressLane(l){
+  const t=songTime(); let best=null, bd=1e9;
+  for(const n of cur.notes){ if(n.hit||n.miss||n.lane!==l) continue; const d=Math.abs(n.t-t); if(d<bd){ bd=d; best=n; } }
+  laneFlash[l]=performance.now();
+  if(best && bd<=WIN_GOOD+0.05){ hit(best, best.t-t); synth.play(best.p,0.18); }
+  else if(cur.playing){ cur.combo=0; updateScore(); }
+}
+function finish(){
+  cur.playing=false; cur.audioEl&&cur.audioEl.pause();
+  const total=cur.notes.length||1, acc=cur.hits/total;
+  $('#rStars').textContent= acc>=0.9?'★★★':acc>=0.7?'★★☆':acc>=0.4?'★☆☆':'☆☆☆';
+  $('#rScore').textContent=cur.score.toLocaleString();
+  $('#rDetail').textContent=`맞힌 음 ${cur.hits}/${total} (${Math.round(acc*100)}%) · 최고 콤보 ${cur.maxCombo}`;
+  $('#result').classList.remove('hidden'); $('#playBtn').textContent='▶ 시작';
+}
+function updateScore(){ $('#score').textContent=cur.score.toLocaleString(); $('#combo').textContent=cur.combo>=3?`${cur.combo} 콤보`:''; }
+let toastT; function showToast(s){ const el=$('#toast'); el.textContent=s; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),350); }
+
+/* ======================= 그리기 ======================= */
+const cv=$('#cv'), g=cv.getContext('2d');
+let W=0,H=0,DPR=1, kbH=0, keyRects=[];
+const pressed=new Map(), laneFlash=[0,0,0,0];
+function resize(){
+  const r=$('#stage').getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1);
+  W=r.width; H=r.height; cv.width=W*DPR; cv.height=H*DPR; g.setTransform(DPR,0,0,DPR,0,0);
+  layoutKeys(); draw();
+}
+window.addEventListener('resize', resize);
+function layoutKeys(){
+  keyRects=[];
+  kbH=Math.min(170, Math.max(90, H*0.24));
+  const whites=[]; for(let p=cur.lo;p<=cur.hi;p++) if(!isBlack(p)) whites.push(p);
+  const ww=W/whites.length;
+  const wx={}; whites.forEach((p,i)=>{ wx[p]=i*ww; keyRects.push({p,x:i*ww,w:ww,y:H-kbH,h:kbH,black:false}); });
+  for(let p=cur.lo;p<=cur.hi;p++) if(isBlack(p) && wx[p-1]!==undefined){ keyRects.push({p,x:wx[p-1]+ww*0.65,w:ww*0.7,y:H-kbH,h:kbH*0.62,black:true}); }
+}
+function noteX(p){ const k=keyRects.find(k=>k.p===p); return k?{x:k.x,w:k.w}:{x:-100,w:0}; }
+function flashKey(p){ pressed.set(p, performance.now()); }
+const PX_PER_SEC=()=> (cur.mode==='tiles'? H*0.55 : H*0.38) / Math.max(0.5,cur.speed) * 1;
+
+function draw(){
+  if(!W) return;
+  g.clearRect(0,0,W,H);
+  if(cur.mode==='tiles') return drawTiles();
+  const hitY=H-kbH, pps=PX_PER_SEC(), t=songTime();
+  // 배경 선 (도 위치)
+  for(const k of keyRects) if(!k.black && k.p%12===0){ g.fillStyle='rgba(255,255,255,.06)'; g.fillRect(k.x,0,1,hitY); }
+  // 떨어지는 음
+  for(const n of cur.notes){
+    const y1=hitY-(n.t-t)*pps, y0=y1-n.d*pps;
+    if(y1<-10 || y0>hitY+4) continue;
+    const {x,w}=noteX(n.p); if(w<=0) continue;
+    const pad=isBlack(n.p)?1:3;
+    g.fillStyle = n.hit ? 'rgba(74,222,128,.85)' : n.miss ? 'rgba(120,120,130,.5)' : (n.hand==='L'?'#4f8fd8':'#f08a3c');
+    roundRect(x+pad, y0, w-pad*2, Math.max(8,y1-y0), 5); g.fill();
+    if($('#names').checked && y1-y0>14 && w>16){ g.fillStyle='rgba(0,0,0,.55)'; g.font=`700 ${Math.min(13,w*0.45)}px "Noto Sans KR",sans-serif`; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12].replace('#','♯'), x+w/2, y1-5); }
+  }
+  // 판정선
+  g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
+  // 기다리는 중 안내
+  if(cur.waitingFor){ const {x,w}=noteX(cur.waitingFor.p); g.strokeStyle='#ffd166'; g.lineWidth=3; roundRect(x+1,hitY-26,w-2,22,6); g.stroke(); }
+  // 건반
+  const now=performance.now(), active=new Set(cur.notes.filter(n=>n.t<=t && n.t+n.d>t).map(n=>n.p));
+  for(const k of keyRects.filter(k=>!k.black)) drawKey(k, now, active);
+  for(const k of keyRects.filter(k=>k.black)) drawKey(k, now, active);
+}
+function drawKey(k, now, active){
+  const pr=pressed.get(k.p), lit=pr && now-pr<180;
+  g.fillStyle = lit ? '#ffb27a' : active.has(k.p) ? (k.black?'#c45f1c':'#ffd9bd') : (k.black?'#1b1d24':'#fafafa');
+  g.fillRect(k.x+0.5,k.y,k.w-1,k.h);
+  g.strokeStyle='#9aa0ad'; g.lineWidth=1; g.strokeRect(k.x+0.5,k.y,k.w-1,k.h);
+  if(!k.black){
+    g.fillStyle='#8a8f9c'; g.font=`${Math.min(12,k.w*0.4)}px sans-serif`; g.textAlign='center';
+    if(k.p%12===0) g.fillText('도'+(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-8);
+    const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#c2410c'; g.fillText(lab, k.x+k.w/2, k.y+k.h-24); }
+  } else { const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#ffb27a'; g.font=`${Math.min(11,k.w*0.5)}px sans-serif`; g.textAlign='center'; g.fillText(lab,k.x+k.w/2,k.y+k.h-8); } }
+}
+function drawTiles(){
+  const lw=W/4, hitY=H*0.82, pps=PX_PER_SEC(), t=songTime(), now=performance.now();
+  for(let l=0;l<4;l++){ g.fillStyle= now-laneFlash[l]<120 ? 'rgba(255,178,122,.25)' : (l%2?'#1a1d25':'#171a21'); g.fillRect(l*lw,0,lw,H); }
+  g.strokeStyle='#2c303b'; for(let l=1;l<4;l++){ g.beginPath(); g.moveTo(l*lw,0); g.lineTo(l*lw,H); g.stroke(); }
+  for(const n of cur.notes){
+    const y1=hitY-(n.t-t)*pps, hgt=Math.max(lw*0.55, Math.min(n.d*pps, lw*1.6)), y0=y1-hgt;
+    if(y1<-10||y0>H) continue;
+    g.fillStyle = n.hit ? 'rgba(74,222,128,.35)' : n.miss ? '#7a2b2b' : '#0b0c10';
+    roundRect(n.lane*lw+4, y0, lw-8, hgt, 8); g.fill();
+    if(!n.hit && !n.miss){ g.strokeStyle='#f08a3c'; g.lineWidth=2; g.stroke(); if($('#names').checked){ g.fillStyle='#f6b48a'; g.font='700 14px "Noto Sans KR",sans-serif'; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12], n.lane*lw+lw/2, y1-10); } }
+  }
+  g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
+  g.fillStyle='#5b6170'; g.font='12px sans-serif'; g.textAlign='center';
+  ['D','F','J','K'].forEach((k,l)=>g.fillText(isTouch?'누르기':k, l*lw+lw/2, H-14));
+}
+function roundRect(x,y,w,h,r){ r=Math.min(r,w/2,h/2); g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+
+/* ======================= 입력 ======================= */
+const isTouch = matchMedia('(pointer:coarse)').matches;
+let showKeyLabels = !isTouch;
+// 화면 누르기 (터치·마우스)
+cv.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  if(cur.mode==='tiles'){ pressLane(Math.min(3,Math.floor(x/(W/4)))); return; }
+  if(y < H-kbH) return;
+  const k = keyRects.filter(k=>k.black).find(k=>x>=k.x&&x<=k.x+k.w&&y<=k.y+k.h) || keyRects.filter(k=>!k.black).find(k=>x>=k.x&&x<=k.x+k.w);
+  if(k) pressKey(k.p);
+});
+// PC 키보드: A S D F G H J K L ; ' = 흰 건반, W E T Y U O P = 검은 건반, ←→ 옥타브 이동
+const KMAP={a:0,w:1,s:2,e:3,d:4,f:5,t:6,g:7,y:8,h:9,u:10,j:11,k:12,o:13,l:14,p:15,';':16,"'":17};
+function keyLabel(p){ if(cur.mode!=='keys') return ''; const off=p-cur.kbBase; for(const [k,v] of Object.entries(KMAP)) if(v===off) return k.toUpperCase(); return ''; }
+const downKeys=new Set();
+document.addEventListener('keydown', e=>{
+  if($('#play').classList.contains('hidden')) return;
+  if(e.target.tagName==='INPUT') return;
+  const k=e.key.toLowerCase();
+  if(k===' '){ e.preventDefault(); togglePlay(); return; }
+  if(cur.mode==='tiles'){ const i=['d','f','j','k'].indexOf(k); if(i>=0 && !downKeys.has(k)){ downKeys.add(k); pressLane(i); } return; }
+  if(e.key==='ArrowLeft'){ cur.kbBase=Math.max(cur.lo,cur.kbBase-12); updateHint(); draw(); return; }
+  if(e.key==='ArrowRight'){ cur.kbBase=Math.min(cur.hi-11,cur.kbBase+12); updateHint(); draw(); return; }
+  if(k in KMAP && !downKeys.has(k)){ downKeys.add(k); pressKey(cur.kbBase+KMAP[k]); }
+});
+document.addEventListener('keyup', e=>downKeys.delete(e.key.toLowerCase()));
+function updateHint(){
+  $('#hint').textContent = cur.mode==='tiles'
+    ? (isTouch?'떨어지는 검은 타일이 주황 선에 닿을 때 그 줄을 눌러요':'D · F · J · K 키로 타일을 눌러요 · 스페이스: 시작/멈춤')
+    : (isTouch?'떨어지는 음이 주황 선에 닿을 때 건반을 눌러요':'키보드 A~; 가 흰 건반, W E T Y U O P 가 검은 건반 · ←→ 옥타브 이동 · 스페이스: 시작/멈춤');
+}
+// 전자피아노 (Web MIDI: PC의 Chrome·Edge, 안드로이드 Chrome)
+async function connectMidi(){
+  const st=$('#midiStatus');
+  if(!navigator.requestMIDIAccess){ st.textContent='이 브라우저는 전자피아노 연결을 지원하지 않아요. PC나 안드로이드의 Chrome·Edge를 써 주세요. (아이폰·아이패드는 지원 안 됨)'; return; }
+  try{
+    const acc=await navigator.requestMIDIAccess();
+    const bind=()=>{ let n=0; acc.inputs.forEach(inp=>{ n++; inp.onmidimessage=m=>{ const [s,note,vel]=m.data; if((s&0xf0)===0x90 && vel>0) pressKey(note,true); }; }); st.textContent = n ? `🎹 연결됨: ${[...acc.inputs.values()].map(i=>i.name).join(', ')}` : 'USB로 전자피아노를 연결한 뒤 다시 눌러 주세요.'; };
+    bind(); acc.onstatechange=bind;
+  }catch(e){ st.textContent='연결을 허락하지 않았거나 실패했어요.'; }
+}
+
+/* ======================= 설정 ======================= */
+function seg(id, key, after){
+  $(id).addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; $$(id+' button').forEach(x=>x.classList.toggle('on',x===b)); cur[key]= key==='speed'? +b.dataset.v : b.dataset.v; after&&after(); });
+}
+seg('#modeSeg','mode',()=>{ $('#handSeg').style.display=cur.mode==='keys'?'':'none'; $('#waitBtn').style.display=cur.mode==='keys'?'':'none'; prepare(); layoutKeys(); reset(); });
+seg('#handSeg','hand',()=>{ prepare(); layoutKeys(); reset(); });
+seg('#speedSeg','speed',()=>{ if(cur.audioEl) cur.audioEl.playbackRate=cur.speed; draw(); });
+$('#waitBtn').onclick=()=>{ cur.wait=!cur.wait; $('#waitBtn').classList.toggle('on',cur.wait); };
+$('#mrVol').oninput=()=>{ if(cur.audioEl) cur.audioEl.volume=+$('#mrVol').value; };
+$('#names').onchange=draw;
+$('#prog').addEventListener('click', e=>{
+  const r=e.currentTarget.getBoundingClientRect(); const t=(e.clientX-r.left)/r.width*cur.song.duration;
+  cur.clock=t+(cur.song.offset||0); cur.notes.forEach(n=>{ if(n.t>=t-0.1){ n.hit=false; n.miss=false; n.gs=false; } else n.miss=n.miss||!n.hit; });
+  if(cur.audioEl){ try{ cur.audioEl.currentTime=Math.max(0,cur.clock); }catch(_){} }
+  draw();
+});
+$('#moreBtn').onclick=()=>{ if(cur.playing) togglePlay(); $('#more').classList.add('show'); };
+$('#moreClose').onclick=()=>$('#more').classList.remove('show');
+$('#sens').oninput=()=>{ $('#sensVal').textContent=`(${$('#sens').value})`; };
+$('#sens').onchange=async ()=>{ if(!raw) return; cur.song.sens=+$('#sens').value; cur.song.notes=notesFromRaw(cur.song.sens); try{ await DB.put(cur.song); }catch(e){} prepare(); layoutKeys(); reset(); };
+function setOffset(d){ cur.song.offset=Math.round(((cur.song.offset||0)+d)*100)/100; $('#offVal').textContent=cur.song.offset.toFixed(2)+'초'; DB.put(cur.song).catch(()=>{}); draw(); }
+$('#offM').onclick=()=>setOffset(-0.05); $('#offP').onclick=()=>setOffset(0.05);
+$('#saveJson').onclick=exportPractice;
+$('#saveMidi').onclick=exportMidi;
+$('#midiConnect').onclick=connectMidi;
+
+renderSongs();
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('../sw.js').catch(()=>{});
+</script>
+</body>
+</html>
