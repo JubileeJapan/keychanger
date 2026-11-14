@@ -1,5 +1,5 @@
 // 오프라인에서도 앱이 열리도록 파일을 저장해 두는 서비스 워커
-const VERSION = 'kc-v12';
+const VERSION = 'kc-v13';
 const CORE = [
   './',
   './index.html',

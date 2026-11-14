@@ -300,7 +300,10 @@ window.I18N_DICT={
 "D · F · J · K 키로 타일을 눌러요 · ↑↓ 떨어지는 속도 · 스페이스: 시작/멈춤": "Press D · F · J · K for the tiles · ↑↓ fall speed · Space: start/pause",
 "휴대폰·태블릿에 앱으로 설치하기": "Install as an app on your phone or tablet",
 "아이폰·아이패드: Safari 공유 버튼(□↑) → 「홈 화면에 추가」 · 안드로이드: Chrome 메뉴(⋮) → 「앱 설치」": "iPhone/iPad: Safari Share button (□↑) → “Add to Home Screen” · Android: Chrome menu (⋮) → “Install app”",
-"📲 앱으로 설치": "📲 Install app"
+"📲 앱으로 설치": "📲 Install app",
+"음 이름": "Note names",
+"도 레 미": "Do Re Mi",
+"끄기": "Off"
 },
 "ja": {
 "코드보를 넣으면,<br><em>원하는 키</em>로.": "コード譜を入れたら、<br><em>好きなキー</em>に。",
@@ -602,6 +605,9 @@ window.I18N_DICT={
 "D · F · J · K 키로 타일을 눌러요 · ↑↓ 떨어지는 속도 · 스페이스: 시작/멈춤": "D · F · J · Kキーでタイルを押す · ↑↓ 落ちる速さ · スペース: スタート/一時停止",
 "휴대폰·태블릿에 앱으로 설치하기": "スマホ・タブレットにアプリとしてインストール",
 "아이폰·아이패드: Safari 공유 버튼(□↑) → 「홈 화면에 추가」 · 안드로이드: Chrome 메뉴(⋮) → 「앱 설치」": "iPhone・iPad: Safariの共有ボタン（□↑）→「ホーム画面に追加」 · Android: Chromeメニュー（⋮）→「アプリをインストール」",
-"📲 앱으로 설치": "📲 アプリをインストール"
+"📲 앱으로 설치": "📲 アプリをインストール",
+"음 이름": "音名",
+"도 레 미": "ド レ ミ",
+"끄기": "オフ"
 }
 };

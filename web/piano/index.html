@@ -157,7 +157,8 @@ h2.sec{font-size:15px;margin:26px 0 10px}
     <div class="opts">
       <label>MR <input type="range" id="mrVol" min="0" max="1" step="0.05" value="0.8"></label>
       <label>멜로디 소리 <input type="checkbox" id="guideSnd"></label>
-      <label>계이름 <input type="checkbox" id="names" checked></label>
+      <label>음 이름 <select id="nameStyle" style="background:#2a2e3a;color:#fff;border:1px solid #3a3f4d;border-radius:6px;padding:2px 4px">
+        <option value="letter">C D E</option><option value="solfa">도 레 미</option><option value="off">끄기</option></select></label>
     </div>
     <div><div class="score" id="score">0</div><div class="combo" id="combo"></div></div>
     <button class="btn sm on" id="playBtn" style="min-width:70px">▶ 시작</button>
@@ -221,7 +222,12 @@ I18N.apply(document.body); I18N.switcher(document.getElementById("langBox"));
 /* ======================= 공통 ======================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const NAMES_BY_LANG={ko:['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'], ja:['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'], en:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']};
-const NAMES_KO=NAMES_BY_LANG[(window.I18N&&I18N.lang)||'ko']||NAMES_BY_LANG.ko;   // 계이름(언어별)
+NAMES_BY_LANG.en=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Ti'];
+const SOLFA=NAMES_BY_LANG[(window.I18N&&I18N.lang)||'ko']||NAMES_BY_LANG.ko;   // 계이름(언어별)
+const LETTERS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+let nameStyle=(()=>{ try{ return localStorage.getItem('kc-names')||'letter'; }catch(e){ return 'letter'; } })();
+const NAMES_KO={ get length(){ return 12; } };   // 떨어지는 음에 쓰는 이름 (설정에 따라)
+for(let i=0;i<12;i++) Object.defineProperty(NAMES_KO,i,{get(){ return nameStyle==='solfa'?SOLFA[i]:LETTERS[i]; }});
 const isBlack=p=>[1,3,6,8,10].includes(((p%12)+12)%12);
 function busy(on,msg,sub){ $('#busy').classList.toggle('show',!!on); if(msg) $('#busyMsg').textContent=msg; $('#busySub').textContent=sub||''; if(!on) $('#busyBar').style.width='0'; }
 function bar(p){ $('#busyBar').style.width=Math.round(p*100)+'%'; }
@@ -714,7 +720,7 @@ function draw(){
     const pad=isBlack(n.p)?1:3;
     g.fillStyle = n.hit ? 'rgba(74,222,128,.85)' : n.miss ? 'rgba(120,120,130,.5)' : (n.hand==='L'?'#4f8fd8':'#f08a3c');
     roundRect(x+pad, y0, w-pad*2, Math.max(8,y1-y0), 5); g.fill();
-    if($('#names').checked && y1-y0>14 && w>16){ g.fillStyle='rgba(0,0,0,.55)'; g.font=`700 ${Math.min(13,w*0.45)}px "Noto Sans KR",sans-serif`; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12].replace('#','♯'), x+w/2, y1-5); }
+    if(nameStyle!=='off' && y1-y0>14 && w>16){ g.fillStyle='rgba(0,0,0,.55)'; g.font=`700 ${Math.min(13,w*0.45)}px "Noto Sans KR",sans-serif`; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12].replace('#','♯'), x+w/2, y1-5); }
   }
   // 판정선
   g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
@@ -731,9 +737,15 @@ function drawKey(k, now, active){
   g.fillRect(k.x+0.5,k.y,k.w-1,k.h);
   g.strokeStyle='#9aa0ad'; g.lineWidth=1; g.strokeRect(k.x+0.5,k.y,k.w-1,k.h);
   if(!k.black){
-    g.fillStyle='#8a8f9c'; g.font=`${Math.min(12,k.w*0.4)}px sans-serif`; g.textAlign='center';
-    if(k.p%12===0) g.fillText(NAMES_KO[0]+(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-8);
-    const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#c2410c'; g.fillText(lab, k.x+k.w/2, k.y+k.h-24); }
+    // 흰 건반마다 C D E F G A B (도에는 옥타브 번호도)
+    const pc=k.p%12, isC=pc===0;
+    g.textAlign='center';
+    g.fillStyle = isC ? '#c2410c' : '#3a3f4d';
+    g.font=`700 ${Math.min(15,k.w*0.48)}px sans-serif`;
+    g.fillText(LETTERS[pc], k.x+k.w/2, k.y+k.h-(isC?16:9));
+    if(isC){ g.font=`${Math.min(10,k.w*0.34)}px sans-serif`; g.fillText(String(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-5); }
+    // PC 키보드 단축키는 위쪽에 작게
+    const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#b8a99a'; g.font=`${Math.min(11,k.w*0.36)}px sans-serif`; g.fillText(lab, k.x+k.w/2, k.y+k.h*0.72); }
   } else { const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#ffb27a'; g.font=`${Math.min(11,k.w*0.5)}px sans-serif`; g.textAlign='center'; g.fillText(lab,k.x+k.w/2,k.y+k.h-8); } }
 }
 function drawTiles(){
@@ -745,7 +757,7 @@ function drawTiles(){
     if(y1<-10||y0>H) continue;
     g.fillStyle = n.hit ? 'rgba(74,222,128,.35)' : n.miss ? '#7a2b2b' : '#0b0c10';
     roundRect(n.lane*lw+4, y0, lw-8, hgt, 8); g.fill();
-    if(!n.hit && !n.miss){ g.strokeStyle='#f08a3c'; g.lineWidth=2; g.stroke(); if($('#names').checked){ g.fillStyle='#f6b48a'; g.font='700 14px "Noto Sans KR",sans-serif'; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12], n.lane*lw+lw/2, y1-10); } }
+    if(!n.hit && !n.miss){ g.strokeStyle='#f08a3c'; g.lineWidth=2; g.stroke(); if(nameStyle!=='off'){ g.fillStyle='#f6b48a'; g.font='700 14px "Noto Sans KR",sans-serif'; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12], n.lane*lw+lw/2, y1-10); } }
   }
   g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
   g.fillStyle='#5b6170'; g.font='12px sans-serif'; g.textAlign='center';
@@ -817,7 +829,8 @@ $('#fallVal').onclick=()=>setFall(1);
 setFall(cur.fall);
 $('#waitBtn').onclick=()=>{ cur.wait=!cur.wait; $('#waitBtn').classList.toggle('on',cur.wait); };
 $('#mrVol').oninput=()=>{ if(cur.audioEl) cur.audioEl.volume=+$('#mrVol').value; };
-$('#names').onchange=draw;
+$('#nameStyle').value=nameStyle;
+$('#nameStyle').onchange=()=>{ nameStyle=$('#nameStyle').value; try{ localStorage.setItem('kc-names',nameStyle); }catch(e){} draw(); };
 $('#prog').addEventListener('click', e=>{
   const r=e.currentTarget.getBoundingClientRect(); const t=(e.clientX-r.left)/r.width*cur.song.duration;
   cur.clock=t+(cur.song.offset||0); cur.notes.forEach(n=>{ if(n.t>=t-0.1){ n.hit=false; n.miss=false; n.gs=false; } else n.miss=n.miss||!n.hit; });
