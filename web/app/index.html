@@ -744,11 +744,24 @@ async function handleChordPdf(file){
 }
 function pdfItemsToText(items){
   if(!items.length) return '';
+  // 두 단으로 된 페이지(Adobe Scan 등)도 단을 나눠 읽는다
+  const xs=items.map(it=>({it, x0:it.transform[4], x1:it.transform[4]+(it.width||0)}));
+  const W=Math.max(...xs.map(o=>o.x1)), L=Math.min(...xs.map(o=>o.x0));
+  let cut=null, best=Infinity;
+  for(let x=L+(W-L)*0.3; x<=L+(W-L)*0.7; x+=2){
+    const cross=xs.filter(o=>o.x0<x && o.x1>x).length;
+    const left=xs.filter(o=>o.x1<=x).length, right=xs.filter(o=>o.x0>=x).length;
+    if(left>xs.length*0.15 && right>xs.length*0.1 && cross<best){ best=cross; cut=x; }
+  }
+  if(best > xs.length*0.03) cut=null;
+  const cols = cut ? [xs.filter(o=>(o.x0+o.x1)/2<cut).map(o=>o.it), xs.filter(o=>(o.x0+o.x1)/2>=cut).map(o=>o.it)] : [items];
+  return cols.filter(c=>c.length).map(pdfColumnToText).join('\n\n');
+}
+function pdfColumnToText(items){
   // 문자 폭 추정: 라틴 문자 위주 항목에서
   const ws=[]; for(const it of items){ const w=vw(it.str); if(w>0 && it.width>0) ws.push(it.width/w); }
   ws.sort((a,b)=>a-b); const cw = ws.length ? ws[Math.floor(ws.length/2)] : 6;
   const minX = Math.min(...items.map(it=>it.transform[4]));
-  // y 기준으로 줄 묶기
   const rows=[];
   for(const it of [...items].sort((a,b)=>b.transform[5]-a.transform[5])){
     const y=it.transform[5], h=Math.abs(it.transform[3])||10;
@@ -764,10 +777,10 @@ function pdfItemsToText(items){
     let s='';
     for(const it of r.items){
       const col=Math.round((it.transform[4]-minX)/cw);
-      if(vw(s) < col) s=padTo(s,col); else if(s && !/ $/.test(s) && !/^ /.test(it.str)) { /* 붙어있는 조각 */ }
+      if(vw(s) < col) s=padTo(s,col); else if(s && !/ $/.test(s) && !/^ /.test(it.str)) s+=' ';
       s+=it.str;
     }
-    lines.push(s.replace(/\s+$/,''));
+    lines.push(fixChordLine(s.replace(/\s+$/,'')));
     prevY=r.y; prevH=r.h;
   }
   return lines.join('\n');
