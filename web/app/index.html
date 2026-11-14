@@ -795,7 +795,7 @@ async function renderPdfPage(doc, n){
 
 /* ===== 사진 코드보 읽기 (브라우저 안에서 OCR, 무료) ===== */
 const TESS_VER = '5.1.1';
-let tessLoading = null, tessWorker = null, tessLang = null;
+let tessLoading = null;
 function loadTesseract(){
   if(window.Tesseract) return Promise.resolve();
   if(!tessLoading) tessLoading = new Promise((res,rej)=>{
@@ -806,18 +806,17 @@ function loadTesseract(){
   });
   return tessLoading;
 }
+const tessWorkers = {};
 async function getOcrWorker(lang, onProgress){
   await loadTesseract();
   const langs = lang==='eng' ? 'eng' : `eng+${lang}`;
-  if(tessWorker && tessLang===langs) return tessWorker;
-  if(tessWorker){ await tessWorker.terminate(); tessWorker=null; }
-  tessWorker = await Tesseract.createWorker(langs, 1, {
+  if(!tessWorkers[langs]) tessWorkers[langs] = Tesseract.createWorker(langs, 1, {
     workerPath:`https://cdn.jsdelivr.net/npm/tesseract.js@${TESS_VER}/dist/worker.min.js`,
     corePath:`https://cdn.jsdelivr.net/npm/tesseract.js-core@${TESS_VER}`,
-    logger: m=>{ if(onProgress) onProgress(m); }
-  });
-  tessLang = langs;
-  return tessWorker;
+    logger: m=>{ if(window.__ocrProgress) window.__ocrProgress(m); }
+  }).catch(e=>{ delete tessWorkers[langs]; throw e; });
+  window.__ocrProgress = onProgress;
+  return tessWorkers[langs];
 }
 // 사진을 인식하기 좋게: 너무 작으면 키우고, 너무 크면 줄이고, 흑백으로
 async function prepImage(blob){
@@ -832,7 +831,7 @@ async function prepImage(blob){
 // OCR이 자주 틀리는 코드 표기를 바로잡는다 (Am? → Am7, GB → G/B, [+ → C …)
 function fixChordToken(t){
   let x=t.replace(/[,.;:]+$/,'');
-  if(/^[\[\(\{]\+?\]?$/.test(x)||x==='c'||x==='Cc'||x==='(C'||x==='C,') return 'C';
+  if(/^[\[\(\{]\+?\]?$/.test(x)||x==='c'||x==='Cc'||x==='(C'||x==='C,'||x==='6'||x==='(6') return 'C';
   x=x.replace(/\?+/g,'7').replace(/77$/,'7').replace(/^O(?=m)/,'D').replace(/^0(?=m)/,'D');
   let m=/^([A-G][#b]?)(m?)([A-G])$/.exec(x);           // GB → G/B, DmF → Dm/F
   if(m) return `${m[1]}${m[2]}/${m[3]}`;
@@ -849,63 +848,97 @@ function fixChordLine(line){
   // 칸 위치는 유지하면서 토큰만 교체
   let i=0; return line.replace(/\S+/g, ()=>fixed[i++]);
 }
-// 인식 결과(단어 위치)로 코드 줄·가사 줄의 칸 맞춤을 되살린다. 두 단으로 된 악보는 단을 나눠 처리
-function ocrToText(data, width){
+// OCR 결과에서 단어 목록 꺼내기
+function ocrWords(data){
   const words=[];
   for(const bl of data.blocks||[]) for(const p of bl.paragraphs||[]) for(const ln of p.lines||[])
     for(const w of ln.words||[]) if(w.text && w.text.trim() && w.confidence>10) words.push(w);
-  if(!words.length) return '';
-  // 단 나누기: 페이지 가운데 부근에서 단어가 거의 지나가지 않는 세로 틈을 찾는다
-  let cut=null;
+  return words;
+}
+// 두 단 악보의 가운데 틈 찾기
+function findGutter(words, width){
+  if(!words.length) return null;
   const W=width||Math.max(...words.map(w=>w.bbox.x1));
-  let best=Infinity;
+  let cut=null, best=Infinity;
   for(let x=Math.round(W*0.3); x<=Math.round(W*0.7); x+=4){
     const cross=words.filter(w=>w.bbox.x0<x && w.bbox.x1>x).length;
     const left=words.filter(w=>w.bbox.x1<=x).length, right=words.filter(w=>w.bbox.x0>=x).length;
     if(left>words.length*0.15 && right>words.length*0.1 && cross<best){ best=cross; cut=x; }
   }
-  if(best > words.length*0.03) cut=null;   // 뚜렷한 틈이 없으면 한 단
-  const cols = cut ? [words.filter(w=>(w.bbox.x0+w.bbox.x1)/2<cut), words.filter(w=>(w.bbox.x0+w.bbox.x1)/2>=cut)] : [words];
+  return best > words.length*0.03 ? null : cut;
+}
+// 단어들을 줄로 묶고, 칸 위치를 살려 글자로 만든다
+function wordRows(words){
+  const sorted=[...words].sort((a,b)=>(a.bbox.y0+a.bbox.y1)-(b.bbox.y0+b.bbox.y1));
+  const rows=[];
+  for(const w of sorted){
+    const cy=(w.bbox.y0+w.bbox.y1)/2, h=w.bbox.y1-w.bbox.y0;
+    const r=rows.find(r=>Math.abs(r.cy-cy) < Math.max(h,r.h)*0.55);
+    if(r){ r.words.push(w); r.y0=Math.min(r.y0,w.bbox.y0); r.y1=Math.max(r.y1,w.bbox.y1); }
+    else rows.push({cy,h,y0:w.bbox.y0,y1:w.bbox.y1,words:[w]});
+  }
+  rows.sort((a,b)=>a.cy-b.cy);
+  return rows.filter(r=>{
+    if(r.words.some(w=>isChordToken(fixChordToken(w.text)))) return true;
+    const t=r.words.map(w=>w.text).join('');
+    if(/^[il|I1!.:'`]+$/.test(t.replace(/\s/g,''))) return false;
+    const junk=r.words.filter(w=>/^[il|I1!H]{2,}l*$|^(lil|Hil|Kill|ill)$/i.test(w.text)).length;
+    if(junk>=2) return false;
+    const alnum=(t.match(/[\p{L}\p{N}]/gu)||[]).length;
+    return alnum >= Math.max(2, t.length*0.6);
+  });
+}
+function rowText(r, minX, chW){
+  let line='';
+  for(const w of [...r.words].sort((a,b)=>a.bbox.x0-b.bbox.x0)){
+    const col=Math.round((w.bbox.x0-minX)/chW);
+    if(vw(line) < col) line=padTo(line,col); else if(line && !/ $/.test(line)) line+=' ';
+    line+=w.text;
+  }
+  return line.replace(/\s+$/,'');
+}
+function charWidth(rows){
+  const ws=[]; for(const r of rows) for(const w of r.words){ const n=vw(w.text); if(n>=2 && /^[\x20-\x7e]+$/.test(w.text)) ws.push((w.bbox.x1-w.bbox.x0)/n); }
+  ws.sort((a,b)=>a-b); return ws.length ? ws[Math.floor(ws.length/2)] : 12;
+}
+function chordRatio(line){
+  const toks=line.trim().split(/\s+/).filter(Boolean); if(!toks.length) return 0;
+  return toks.filter(t=>IGNORE_RE.test(t)||isChordToken(fixChordToken(t))).length/toks.length;
+}
+// 인식 결과로 코드 줄·가사 줄을 되살린다.
+// dataLyric: 가사 언어로 읽은 결과, dataChord: 영어로 읽은 결과(코드 줄은 이쪽이 정확). 둘이 같으면 한 번만 읽은 것
+function ocrToText(dataLyric, width, dataChord){
+  const wl=ocrWords(dataLyric), wc=dataChord?ocrWords(dataChord):wl;
+  if(!wl.length && !wc.length) return '';
+  const cut=findGutter(wc.length?wc:wl, width);
+  const split=ws=> cut ? [ws.filter(w=>(w.bbox.x0+w.bbox.x1)/2<cut), ws.filter(w=>(w.bbox.x0+w.bbox.x1)/2>=cut)] : [ws];
+  const colsL=split(wl), colsC=split(wc);
   const out=[];
-  for(const cw0 of cols){
-    if(!cw0.length) continue;
-    // 줄 묶기 (세로 중심이 가까운 단어끼리)
-    const sorted=[...cw0].sort((a,b)=>(a.bbox.y0+a.bbox.y1)-(b.bbox.y0+b.bbox.y1));
-    const rows=[];
-    for(const w of sorted){
-      const cy=(w.bbox.y0+w.bbox.y1)/2, h=w.bbox.y1-w.bbox.y0;
-      const r=rows.find(r=>Math.abs(r.cy-cy) < Math.max(h,r.h)*0.55);
-      if(r){ r.words.push(w); r.y0=Math.min(r.y0,w.bbox.y0); r.y1=Math.max(r.y1,w.bbox.y1); }
-      else rows.push({cy,h,y0:w.bbox.y0,y1:w.bbox.y1,words:[w]});
-    }
-    rows.sort((a,b)=>a.cy-b.cy);
-    // 그림(코드 다이어그램 등)에서 나온 쓰레기 줄 버리기
-    const good=rows.filter(r=>{
-      if(r.words.some(w=>isChordToken(fixChordToken(w.text)))) return true;
-      const t=r.words.map(w=>w.text).join('');
-      if(/^[il|I1!.:'`]+$/.test(t.replace(/\s/g,''))) return false;
-      const junk=r.words.filter(w=>/^[il|I1!H]{2,}l*$|^(lil|Hil|Kill|ill)$/i.test(w.text)).length;
-      if(junk>=2) return false;
-      const alnum=(t.match(/[\p{L}\p{N}]/gu)||[]).length;
-      return alnum >= Math.max(2, t.length*0.6);
-    });
-    if(!good.length) continue;
-    const ws=[]; for(const r of good) for(const w of r.words){ const n=vw(w.text); if(n>=2 && /^[\x20-\x7e]+$/.test(w.text)) ws.push((w.bbox.x1-w.bbox.x0)/n); }
-    ws.sort((a,b)=>a-b);
-    const chW = ws.length ? ws[Math.floor(ws.length/2)] : 12;
-    const minX = Math.min(...good.map(r=>Math.min(...r.words.map(w=>w.bbox.x0))));
-    let prev=null;
-    for(const r of good){
-      const lh=r.y1-r.y0;
-      if(prev && r.y0 - prev.y1 > lh*1.1) out.push('');
-      let line='';
-      for(const w of r.words.sort((a,b)=>a.bbox.x0-b.bbox.x0)){
-        const col=Math.round((w.bbox.x0-minX)/chW);
-        if(vw(line) < col) line=padTo(line,col); else if(line && !/ $/.test(line)) line+=' ';
-        line+=w.text;
+  for(let ci=0; ci<colsL.length; ci++){
+    const rowsL=wordRows(colsL[ci]), rowsC=wordRows(colsC[ci]||[]);
+    if(!rowsL.length && !rowsC.length) continue;
+    const all=[...rowsL,...rowsC];
+    const chW=charWidth(all);
+    const minX=Math.min(...all.map(r=>Math.min(...r.words.map(w=>w.bbox.x0))));
+    // 가사 결과를 기준으로, 같은 높이의 영어 결과가 코드 줄이면 그쪽으로 바꿔 끼운다
+    const used=new Set(); const lines=[];
+    for(const r of rowsL){
+      const twin=rowsC.find(c=>!used.has(c) && Math.min(c.y1,r.y1)-Math.max(c.y0,r.y0) > Math.min(c.y1-c.y0,r.y1-r.y0)*0.4);
+      let txt=rowText(r,minX,chW);
+      if(twin){ used.add(twin); const ct=rowText(twin,minX,chW);
+        const cjk=(txt.match(/[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7a3]/g)||[]).length, letters=(txt.match(/\p{L}/gu)||[]).length;
+        if(chordRatio(ct)>=0.6 && chordRatio(ct)>=chordRatio(txt)) txt=ct;
+        else if(letters && cjk/letters < 0.3) txt=ct;   // 영어 가사 줄은 영어로 읽은 쪽이 정확
       }
-      out.push(fixChordLine(line.replace(/\s+$/,'')));
-      prev=r;
+      lines.push({y0:r.y0,y1:r.y1,txt});
+    }
+    // 가사 결과에서 빠진 코드 줄 보충
+    for(const c of rowsC) if(!used.has(c)){ const ct=rowText(c,minX,chW); if(chordRatio(ct)>=0.6) lines.push({y0:c.y0,y1:c.y1,txt:ct}); }
+    lines.sort((a,b)=>a.y0-b.y0);
+    let prev=null;
+    for(const l of lines){
+      if(prev && l.y0-prev.y1 > (l.y1-l.y0)*1.1) out.push('');
+      out.push(fixChordLine(l.txt)); prev=l;
     }
     out.push('');
   }
@@ -915,17 +948,26 @@ async function readImagesLocal(blobs, label){
   const lang=$('#ocrLang').value;
   busy(true,'글자 인식 준비 중… (처음 한 번은 데이터를 받느라 조금 걸려요)');
   setStatus('#chordStatus','읽는 중: '+label);
+  const progress=m=>{
+    if(m.status==='recognizing text') $('#busyMsg').textContent=`글자 읽는 중… ${Math.round(m.progress*100)}%`;
+    else if(/load/i.test(m.status||'')) $('#busyMsg').textContent='인식 데이터 받는 중…'+(m.progress?` ${Math.round(m.progress*100)}%`:'');
+  };
   try{
-    const worker = await getOcrWorker(lang, m=>{
-      if(m.status==='recognizing text') $('#busyMsg').textContent=`글자 읽는 중… ${Math.round(m.progress*100)}%`;
-      else if(/load/i.test(m.status||'')) $('#busyMsg').textContent='인식 데이터 받는 중…'+(m.progress?` ${Math.round(m.progress*100)}%`:'');
-    });
     const parts=[];
     for(let i=0;i<blobs.length;i++){
-      $('#busyMsg').textContent=`글자 읽는 중… (${i+1}/${blobs.length})`;
       const canvas=await prepImage(blobs[i]);
-      const {data}=await worker.recognize(canvas, {}, {blocks:true, text:true});
-      parts.push(ocrToText(data, canvas.width) || data.text || '');
+      // 1) 영어로 읽기 — 코드(알파벳)는 이쪽이 정확
+      let w=await getOcrWorker('eng', progress);
+      $('#busyMsg').textContent=`코드 읽는 중… (${i+1}/${blobs.length})`;
+      const {data:dc}=await w.recognize(canvas, {}, {blocks:true, text:true});
+      let dl=dc;
+      // 2) 가사 언어가 영어가 아니면 한 번 더 읽어서 가사를 가져온다
+      if(lang!=='eng'){
+        w=await getOcrWorker(lang, progress);
+        $('#busyMsg').textContent=`가사 읽는 중… (${i+1}/${blobs.length})`;
+        dl=(await w.recognize(canvas, {}, {blocks:true, text:true})).data;
+      }
+      parts.push(ocrToText(dl, canvas.width, dc) || dl.text || '');
     }
     const text=parts.join('\n\n').trim();
     if(!text) throw new Error('글자를 찾지 못했어요');
