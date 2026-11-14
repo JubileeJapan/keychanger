@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>피아노 연습 — MR을 건반·타일로</title>
-<link rel="manifest" href="../manifest.webmanifest">
-<meta name="theme-color" content="#c2410c">
-<link rel="icon" href="../icons/icon-192.png">
-<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d2029">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="피아노 연습">
+<link rel="icon" href="../icons/piano-192.png">
+<link rel="apple-touch-icon" href="../icons/piano-apple.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -123,6 +125,15 @@ h2.sec{font-size:15px;margin:26px 0 10px}
     <div data-i18n-html><b>1. 올리기</b>MR을 올리면 음을 자동으로 찾아요. <b>악보(MusicXML)·MIDI</b>는 더 정확하고 바로 열려요. 아래 샘플 곡으로 바로 시작해도 돼요.</div>
     <div data-i18n-html><b>2. 연습하기</b>「건반」은 실제 피아노 자리 연습, 「타일」은 박자 게임이에요. 속도를 줄여서 시작해 보세요.</div>
     <div data-i18n-html><b>3. 나눠 주기</b>「연습 파일 저장」으로 받은 파일을 아이들에게 보내면, 아이들은 변환 없이 바로 열어요.</div>
+  </div>
+
+  <div class="card" id="installCard" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:14px">
+    <img src="../icons/piano-192.png" alt="" width="44" height="44" style="border-radius:10px">
+    <div style="flex:1;min-width:220px">
+      <b>휴대폰·태블릿에 앱으로 설치하기</b>
+      <div id="installHow" style="color:var(--muted);font-size:13px;margin-top:2px">아이폰·아이패드: Safari 공유 버튼(□↑) → 「홈 화면에 추가」 · 안드로이드: Chrome 메뉴(⋮) → 「앱 설치」</div>
+    </div>
+    <button class="btn primary" id="installBtn" style="display:none">📲 앱으로 설치</button>
   </div>
 
   <h2 class="sec">샘플 곡 <span style="font-weight:400;color:var(--muted);font-size:12px">— 눌러서 바로 연습해요</span></h2>
@@ -825,6 +836,11 @@ $('#midiConnect').onclick=connectMidi;
 
 renderSamples();
 renderSongs();
+// 앱으로 설치 (안드로이드·PC Chrome은 버튼 한 번, 아이폰은 안내 문구)
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall=e; $('#installBtn').style.display='inline-flex'; });
+$('#installBtn').onclick=async ()=>{ if(!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall=null; $('#installBtn').style.display='none'; };
+if(matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('#installCard').style.display='none';
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('../sw.js').catch(()=>{});
 </script>
 </body>

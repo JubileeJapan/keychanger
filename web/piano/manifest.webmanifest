@@ -1,0 +1,31 @@
+{
+  "id": "./piano/",
+  "name": "피아노 연습 — 건반·타일",
+  "short_name": "피아노 연습",
+  "description": "MR·악보를 떨어지는 건반과 피아노 타일로 연습하는 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14161c",
+  "theme_color": "#1d2029",
+  "icons": [
+    {
+      "src": "../icons/piano-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/piano-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/piano-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

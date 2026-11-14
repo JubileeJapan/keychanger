@@ -1,5 +1,5 @@
 // 오프라인에서도 앱이 열리도록 파일을 저장해 두는 서비스 워커
-const VERSION = 'kc-v11';
+const VERSION = 'kc-v12';
 const CORE = [
   './',
   './index.html',
@@ -19,6 +19,8 @@ const CORE = [
   './app/vendor/opensheetmusicdisplay.min.js',
   './piano/',
   './piano/index.html',
+  './piano/manifest.webmanifest',
+  './icons/piano-192.png',
   './piano/vendor/bp.bundle.js',
   './piano/vendor/model/model.json',
   './piano/vendor/model/group1-shard1of1.bin'
