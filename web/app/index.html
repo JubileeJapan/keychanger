@@ -98,6 +98,19 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
 .spin{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(29,27,24,.45);display:grid;place-items:center;z-index:60;padding:16px}
+.modal-card{background:#fff;border-radius:14px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:26px 26px 22px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-card h2{margin:0 0 6px;font-size:19px}
+.modal-lead{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 16px}
+.modal-x{position:absolute;top:12px;right:14px;border:0;background:none;font-size:24px;cursor:pointer;color:var(--muted)}
+.omr-opt{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.omr-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+.omr-head .muted{color:var(--muted);font-size:12px}
+.omr-opt ol{margin:10px 0 12px;padding-left:20px;font-size:13px;line-height:1.7}
+.tag{background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;border-radius:999px}
+.tag.gray{background:#6f6a62}
+.omr-tips{background:var(--accent-soft);border-radius:10px;padding:12px 16px;font-size:13px}
+.omr-tips ul{margin:6px 0 0;padding-left:18px;line-height:1.7}
 #offscreen{position:absolute;left:-20000px;top:0}
 @media (max-width:900px){
   main{grid-template-columns:1fr}
@@ -206,8 +219,9 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
         <b>MusicXML 파일을 끌어다 놓거나 클릭</b><br>
         <span style="font-size:12px">.musicxml · .xml · .mxl</span>
       </div>
-      <input type="file" id="scoreFile" accept=".musicxml,.xml,.mxl" hidden>
+      <input type="file" id="scoreFile" accept=".musicxml,.xml,.mxl,.pdf,image/*" hidden>
       <div class="status" id="scoreStatus"></div>
+      <button class="btn" id="omrGuideBtn" style="justify-content:center">📄 PDF·사진 악보를 가지고 있나요? 변환 방법 보기</button>
     </div>
     <div class="sec">
       <h3>2. 키 바꾸기</h3>
@@ -230,8 +244,8 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
       </div>
     </div>
     <div class="note">
-      음표·조표·코드 기호가 모두 새 키로 바뀌어요.<br><br>
-      <b>PDF나 사진으로 된 오선 악보</b>는 바로 읽을 수 없어요. 무료 프로그램 <b>MuseScore</b>에서 「파일 → PDF 가져오기」로 열거나 직접 입력한 뒤 「내보내기 → MusicXML」로 저장해서 넣어 주세요. Finale·Sibelius·Dorico도 MusicXML로 내보낼 수 있어요.
+      <b>합창 악보(소프라노·알토·테너·베이스)</b>도 모든 성부의 음표·조표·코드가 한 번에 새 키로 바뀌고, 가사는 그대로 따라가요.<br><br>
+      PDF나 사진 악보는 먼저 MusicXML로 바꿔서 넣어 주세요. 위 「변환 방법 보기」에 순서가 있어요. Finale·Sibelius·Dorico 파일은 각 프로그램에서 MusicXML로 내보내면 돼요.
     </div>
   </aside>
   <section class="view">
@@ -245,6 +259,49 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
     </div>
   </section>
 </main>
+
+<!-- PDF·사진 악보 → MusicXML 변환 안내 -->
+<div class="modal hidden" id="omrModal" role="dialog" aria-modal="true" aria-labelledby="omrTitle">
+  <div class="modal-card">
+    <button class="modal-x" id="omrClose" aria-label="닫기">×</button>
+    <h2 id="omrTitle">PDF·사진 악보를 MusicXML로 바꾸기</h2>
+    <p class="modal-lead" id="omrLead">오선 악보는 먼저 「악보 인식」 프로그램으로 MusicXML 파일로 바꾼 뒤, 여기에 넣으면 조옮김과 PDF 저장을 할 수 있어요.</p>
+
+    <div class="omr-opt">
+      <div class="omr-head"><span class="tag">휴대폰 · 추천</span><b>PlayScore 2</b> <span class="muted">사진·PDF 악보 인식 앱 (iPhone·Android)</span></div>
+      <ol>
+        <li>앱을 설치하고 악보를 <b>밝은 곳에서 정면으로</b> 찍거나 PDF를 불러와요.</li>
+        <li>재생해서 음이 맞게 인식됐는지 들어 봐요. (성부별 소리 듣기·조옮김도 앱 안에서 가능)</li>
+        <li>공유 → <b>MusicXML로 내보내기</b> (Professional 구독 필요)</li>
+        <li>받은 파일을 이 화면에 넣어요.</li>
+      </ol>
+      <a class="btn sm" href="https://www.playscore.co/" target="_blank" rel="noopener">PlayScore 2 홈페이지</a>
+    </div>
+
+    <div class="omr-opt">
+      <div class="omr-head"><span class="tag gray">PC · 무료</span><b>MuseScore</b> <span class="muted">무료 악보 프로그램</span></div>
+      <ol>
+        <li>아래 「PDF 변환」 페이지에 PDF를 올리면 MuseScore 파일로 바꿔 줘요. (로그인이 필요할 수 있어요)</li>
+        <li>받은 파일을 MuseScore로 열고, 틀린 음이 있으면 고쳐요.</li>
+        <li>파일 → 내보내기 → <b>MusicXML</b>로 저장해요.</li>
+        <li>저장한 파일을 이 화면에 넣어요.</li>
+      </ol>
+      <div class="row">
+        <a class="btn sm" href="https://musescore.com/import" target="_blank" rel="noopener">PDF 변환 페이지</a>
+        <a class="btn sm" href="https://musescore.org/download" target="_blank" rel="noopener">MuseScore 다운로드</a>
+      </div>
+    </div>
+
+    <div class="omr-tips">
+      <b>잘 읽히게 하는 요령</b>
+      <ul>
+        <li>사진보다 <b>원본 PDF</b>가 훨씬 정확해요. 종이 악보는 스캐너로 300dpi 스캔이 가장 좋아요.</li>
+        <li>사진은 그림자 없이 밝게, 악보가 화면에 반듯하게 꽉 차도록 찍어 주세요.</li>
+        <li>4성부 합창 악보는 인식 후 한 번 들어 보고 틀린 음을 고친 다음 넣으면 결과가 깔끔해요.</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <div id="offscreen"></div>
 <div class="toast" id="toast"></div>
@@ -955,7 +1012,7 @@ function scoreShift(){
 async function loadScore(file){
   if(!file) return;
   if(!window.opensheetmusicdisplay){ setStatus('#scoreStatus','악보 모듈을 불러오지 못했어요. 새로고침해 주세요.','err'); return; }
-  if(/\.(pdf|png|jpe?g|gif|webp)$/i.test(file.name)){ setStatus('#scoreStatus','PDF·사진 악보는 MusicXML로 바꿔서 넣어 주세요 (아래 안내 참고).','err'); return; }
+  if(/\.(pdf|png|jpe?g|gif|webp|heic)$/i.test(file.name)){ openOmrGuide(`「${file.name}」은 PDF·사진 악보예요. 아래 방법으로 MusicXML로 바꾼 뒤 다시 넣어 주세요.`); return; }
   busy(true,'악보 읽는 중…');
   try{
     let xml;
@@ -1048,6 +1105,15 @@ $('#sPdfBtn').onclick = async ()=>{
     await saveFile(`${ss.name.replace(/[\\/:*?"<>|]/g,'_')} (${ss.target}).pdf`, blob);
   }catch(e){ console.error(e); busy(false); toast('PDF를 만들지 못했어요: '+(e.message||e)); }
 };
+
+/* PDF·사진 악보 변환 안내 */
+const omrLeadDefault = $('#omrLead').textContent;
+function openOmrGuide(msg){ $('#omrLead').textContent = msg || omrLeadDefault; $('#omrModal').classList.remove('hidden'); $('#omrClose').focus(); }
+function closeOmrGuide(){ $('#omrModal').classList.add('hidden'); }
+$('#omrGuideBtn').onclick=()=>openOmrGuide();
+$('#omrClose').onclick=closeOmrGuide;
+$('#omrModal').addEventListener('click', e=>{ if(e.target.id==='omrModal') closeOmrGuide(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeOmrGuide(); });
 
 /* 시작 */
 if(NATIVE){ $('.logo').removeAttribute('href'); }
