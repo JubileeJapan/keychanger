@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="../i18n-dict.js"></script>
+<script src="../i18n.js"></script>
 <script src="vendor/bp.bundle.js"></script>
 <script src="../app/vendor/jszip.min.js"></script>
 <style>
@@ -99,13 +101,14 @@ h2.sec{font-size:15px;margin:26px 0 10px}
 <div id="home">
   <header class="top" style="margin:-24px -18px 22px;padding:12px 18px">
     <a class="logo" href="../"><span class="mark">♪</span>피아노 연습</a>
-    <a class="link" href="../app/">키 체인저 →</a>
+    <span id="langBox" style="margin-left:auto"></span>
+    <a class="link" href="../app/" style="margin-left:12px">키 체인저 →</a>
   </header>
 
   <div class="hero">
     <div>
-      <h1>MR을 올리면<br>피아노 연습 게임이 돼요</h1>
-      <p>찬양 MR(반주 음원)이나 녹음 파일을 올리면, 음을 자동으로 찾아서 <b>떨어지는 건반</b>과 <b>피아노 타일</b>로 바꿔 줘요. 태블릿·휴대폰은 화면을 누르고, PC는 키보드로, 전자피아노는 USB로 연결해서 연주해요.</p>
+      <h1 data-i18n-html>MR을 올리면<br>피아노 연습 게임이 돼요</h1>
+      <p data-i18n-html>찬양 MR(반주 음원)이나 녹음 파일을 올리면, 음을 자동으로 찾아서 <b>떨어지는 건반</b>과 <b>피아노 타일</b>로 바꿔 줘요. 태블릿·휴대폰은 화면을 누르고, PC는 키보드로, 전자피아노는 USB로 연결해서 연주해요.</p>
     </div>
     <div>
       <div class="drop" id="drop">
@@ -117,16 +120,16 @@ h2.sec{font-size:15px;margin:26px 0 10px}
   </div>
 
   <div class="steps">
-    <div><b>1. 올리기</b>MR을 올리면 음을 자동으로 찾아요. <b>악보(MusicXML)·MIDI</b>는 더 정확하고 바로 열려요. 아래 샘플 곡으로 바로 시작해도 돼요.</div>
-    <div><b>2. 연습하기</b>「건반」은 실제 피아노 자리 연습, 「타일」은 박자 게임이에요. 속도를 줄여서 시작해 보세요.</div>
-    <div><b>3. 나눠 주기</b>「연습 파일 저장」으로 받은 파일을 아이들에게 보내면, 아이들은 변환 없이 바로 열어요.</div>
+    <div data-i18n-html><b>1. 올리기</b>MR을 올리면 음을 자동으로 찾아요. <b>악보(MusicXML)·MIDI</b>는 더 정확하고 바로 열려요. 아래 샘플 곡으로 바로 시작해도 돼요.</div>
+    <div data-i18n-html><b>2. 연습하기</b>「건반」은 실제 피아노 자리 연습, 「타일」은 박자 게임이에요. 속도를 줄여서 시작해 보세요.</div>
+    <div data-i18n-html><b>3. 나눠 주기</b>「연습 파일 저장」으로 받은 파일을 아이들에게 보내면, 아이들은 변환 없이 바로 열어요.</div>
   </div>
 
   <h2 class="sec">샘플 곡 <span style="font-weight:400;color:var(--muted);font-size:12px">— 눌러서 바로 연습해요</span></h2>
   <div id="samples"></div>
 
   <h2 class="sec">저장된 곡</h2>
-  <div id="songs" class="songs"></div>
+  <div id="songs" class="songs" data-no-i18n></div>
 </div>
 
 <!-- ================= 연습 화면 ================= -->
@@ -183,8 +186,8 @@ h2.sec{font-size:15px;margin:26px 0 10px}
   <b style="font-size:16px">PDF·사진 악보를 피아노 연습으로 바꾸기</b>
   <p id="guideLead" style="color:var(--muted);font-size:13px;line-height:1.6;margin:8px 0 12px"></p>
   <ol style="font-size:13px;line-height:1.8;padding-left:20px;margin:0 0 12px">
-    <li><b>PlayScore 2</b>(휴대폰 앱)로 악보를 찍거나 PDF를 불러와서 <b>MusicXML</b>로 내보내요. (Professional 구독 필요)</li>
-    <li>또는 <b>MuseScore</b>(PC, 무료)의 PDF 변환 페이지에 올린 뒤, MuseScore로 열어 「내보내기 → MusicXML」로 저장해요.</li>
+    <li data-i18n-html><b>PlayScore 2</b>(휴대폰 앱)로 악보를 찍거나 PDF를 불러와서 <b>MusicXML</b>로 내보내요. (Professional 구독 필요)</li>
+    <li data-i18n-html>또는 <b>MuseScore</b>(PC, 무료)의 PDF 변환 페이지에 올린 뒤, MuseScore로 열어 「내보내기 → MusicXML」로 저장해요.</li>
     <li>저장한 MusicXML 파일을 여기에 올리면 바로 건반·타일 연습이 돼요. MIDI 파일도 돼요.</li>
   </ol>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -202,14 +205,16 @@ h2.sec{font-size:15px;margin:26px 0 10px}
 </div></div>
 
 <script>
+I18N.apply(document.body); I18N.switcher(document.getElementById("langBox"));
 /* ======================= 공통 ======================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const NAMES_KO=['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
+const NAMES_BY_LANG={ko:['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'], ja:['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'], en:['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']};
+const NAMES_KO=NAMES_BY_LANG[(window.I18N&&I18N.lang)||'ko']||NAMES_BY_LANG.ko;   // 계이름(언어별)
 const isBlack=p=>[1,3,6,8,10].includes(((p%12)+12)%12);
 function busy(on,msg,sub){ $('#busy').classList.toggle('show',!!on); if(msg) $('#busyMsg').textContent=msg; $('#busySub').textContent=sub||''; if(!on) $('#busyBar').style.width='0'; }
 function bar(p){ $('#busyBar').style.width=Math.round(p*100)+'%'; }
 function download(name, blob){ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),30000); }
-const safeName=s=>(s||'곡').replace(/[\\/:*?"<>|]/g,'_');
+const safeName=s=>(s||T('곡')).replace(/[\\/:*?"<>|]/g,'_');
 
 /* ======================= 저장소 (이 기기 안 IndexedDB) ======================= */
 const DB={ db:null,
@@ -223,10 +228,10 @@ const DB={ db:null,
 async function renderSongs(){
   let list=[]; try{ list=await DB.all(); }catch(e){}
   const el=$('#songs');
-  if(!list.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">아직 곡이 없어요. 위에서 MR을 올려 보세요.</div>'; return; }
+  if(!list.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">'+T('아직 곡이 없어요. 위에서 MR을 올려 보세요.')+'</div>'; return; }
   el.innerHTML=list.map(s=>`<div class="song"><div class="t">${esc(s.title)}</div>
-    <div class="m">${s.notes.length}개 음 · ${fmtTime(s.duration)}${s.audio?' · MR 포함':''}</div>
-    <div class="row"><button class="btn sm primary" data-play="${s.id}">▶ 연습하기</button><button class="btn sm" data-del="${s.id}">삭제</button></div></div>`).join('');
+    <div class="m">${T('{0}개 음',s.notes.length)} · ${fmtTime(s.duration)}${s.audio?' · '+T('MR 포함'):''}</div>
+    <div class="row"><button class="btn sm primary" data-play="${s.id}">▶ ${T('연습하기')}</button><button class="btn sm" data-del="${s.id}">${T('삭제')}</button></div></div>`).join('');
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtTime=t=>{ t=Math.max(0,t||0); return `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`; };
@@ -235,7 +240,7 @@ $('#songs').addEventListener('click', async e=>{
   if(p){ const s=(await DB.all()).find(x=>x.id===p.dataset.play); if(s) openSong(s, null); }
   if(d && confirmDel(d)){ await DB.del(d.dataset.del); renderSongs(); }
 });
-function confirmDel(btn){ if(btn.dataset.sure){ return true; } btn.dataset.sure='1'; btn.textContent='한 번 더 누르면 삭제'; setTimeout(()=>{ delete btn.dataset.sure; btn.textContent='삭제'; },2500); return false; }
+function confirmDel(btn){ if(btn.dataset.sure){ return true; } btn.dataset.sure='1'; btn.textContent=T('한 번 더 누르면 삭제'); setTimeout(()=>{ delete btn.dataset.sure; btn.textContent=T('삭제'); },2500); return false; }
 
 /* ======================= 파일 올리기 ======================= */
 const drop=$('#drop'), fileIn=$('#file');
@@ -253,13 +258,13 @@ async function handleFile(f){
     if(/\.(musicxml|xml|mxl)$/i.test(f.name)) return importMusicXml(f, name);
     if(/\.pdf$/i.test(f.name) || /^image\//.test(f.type)) return showScoreGuide(f.name);
     await transcribe(f, name);
-  }catch(e){ console.error(e); busy(false); alert('파일을 처리하지 못했어요: '+(e.message||e)); }
+  }catch(e){ console.error(e); busy(false); alert(T('파일을 처리하지 못했어요: {0}',e.message||e)); }
 }
 
 /* --- MR → 음표 (Spotify Basic Pitch, 이 기기 안에서 계산) --- */
 let bpModel=null, raw=null;   // raw: 감도 조절용 원본 결과 {frames,onsets,contours}
 async function transcribe(f, name){
-  busy(true,'음원 여는 중…', f.name); bar(0.02);
+  busy(true,T('음원 여는 중…'), f.name); bar(0.02);
   const buf=await f.arrayBuffer();
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
   const decoded=await ctx.decodeAudioData(buf.slice(0));
@@ -269,18 +274,18 @@ async function transcribe(f, name){
   const off=new OfflineAudioContext(1, Math.ceil(duration*22050), 22050);
   const src=off.createBufferSource(); src.buffer=decoded; src.connect(off.destination); src.start();
   const mono=await off.startRendering();
-  busy(true,'음을 찾는 중…','처음 한 번은 인식 모델을 받느라 조금 더 걸려요');
+  busy(true,T('음을 찾는 중…'),T('처음 한 번은 인식 모델을 받느라 조금 더 걸려요'));
   if(!bpModel) bpModel=new BP.BasicPitch('vendor/model/model.json');
   const frames=[], onsets=[], contours=[];
   const t0=performance.now();
   await bpModel.evaluateModel(mono, (fr,on,co)=>{ frames.push(...fr); onsets.push(...on); contours.push(...co); }, p=>{
     bar(0.05+p*0.9);
-    const el=(performance.now()-t0)/1000; if(p>0.03){ const left=el/p*(1-p); $('#busySub').textContent=`약 ${Math.ceil(left)}초 남았어요`; }
+    const el=(performance.now()-t0)/1000; if(p>0.03){ const left=el/p*(1-p); $('#busySub').textContent=T('약 {0}초 남았어요',Math.ceil(left)); }
   });
   raw={frames,onsets,contours};
   const notes=notesFromRaw(0.4);
   const song={ id:'s'+Date.now(), title:name, created:Date.now(), duration, notes, audio:f, sens:0.4, offset:0 };
-  busy(true,'저장 중…'); bar(1);
+  busy(true,T('저장 중…')); bar(1);
   try{ await DB.put(song); }catch(e){ console.warn('저장 실패', e); }
   busy(false);
   renderSongs();
@@ -310,12 +315,12 @@ async function exportPractice(){
   let audio=null;
   if(s.audio){ audio=await new Promise(r=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(s.audio); }); }
   const data={ type:'kc-piano', v:1, title:s.title, duration:s.duration, offset:s.offset||0, notes:s.notes, audio };
-  download(`${safeName(s.title)} 피아노연습.json`, new Blob([JSON.stringify(data)],{type:'application/json'}));
+  download(`${safeName(s.title)} ${T('피아노연습')}.json`, new Blob([JSON.stringify(data)],{type:'application/json'}));
 }
 async function importPractice(f){
-  busy(true,'연습 파일 여는 중…');
+  busy(true,T('연습 파일 여는 중…'));
   const d=JSON.parse(await f.text());
-  if(d.type!=='kc-piano' || !Array.isArray(d.notes)) throw new Error('피아노 연습 파일이 아니에요');
+  if(d.type!=='kc-piano' || !Array.isArray(d.notes)) throw new Error(T('피아노 연습 파일이 아니에요'));
   let audio=null;
   if(d.audio){ audio=await (await fetch(d.audio)).blob(); }
   const song={ id:'s'+Date.now(), title:d.title||f.name, created:Date.now(), duration:d.duration, notes:d.notes, audio, offset:d.offset||0 };
@@ -381,14 +386,14 @@ function sampleSong(s){
 }
 function renderSamples(){
   const cats=[...new Set(SAMPLES.map(s=>s.cat))];
-  $('#samples').innerHTML=cats.map(c=>`<div class="cat">${c}</div><div class="chips">${
-    SAMPLES.map((s,i)=>s.cat===c?`<button class="chip" data-sample="${i}"><span class="lv l${s.lv}">${['','쉬움','보통','어려움'][s.lv]}</span>${esc(s.title)}${s.bass?' <small>· 양손</small>':''}</button>`:'').join('')}</div>`).join('');
+  $('#samples').innerHTML=cats.map(c=>`<div class="cat">${T(c)}</div><div class="chips">${
+    SAMPLES.map((s,i)=>s.cat===c?`<button class="chip" data-sample="${i}"><span class="lv l${s.lv}">${T(['','쉬움','보통','어려움'][s.lv])}</span>${esc(T(s.title))}${s.bass?' <small>· '+T('양손')+'</small>':''}</button>`:'').join('')}</div>`).join('');
 }
 $('#samples').addEventListener('click', e=>{ const b=e.target.closest('[data-sample]'); if(b) openSong(sampleSong(SAMPLES[+b.dataset.sample]), null); });
 
 /* ======================= 악보(MusicXML) → 음표 ======================= */
 async function importMusicXml(f, name){
-  busy(true,'악보 읽는 중…', f.name);
+  busy(true,T('악보 읽는 중…'), f.name);
   let xml;
   if(/\.mxl$/i.test(f.name)){
     const zip=await JSZip.loadAsync(f); let path=null; const cont=zip.file('META-INF/container.xml');
@@ -397,10 +402,10 @@ async function importMusicXml(f, name){
     xml=await zip.file(path).async('string');
   } else xml=await f.text();
   const doc=new DOMParser().parseFromString(xml,'application/xml');
-  if(doc.querySelector('parsererror')) throw new Error('MusicXML 형식이 아니에요');
+  if(doc.querySelector('parsererror')) throw new Error(T('MusicXML 형식이 아니에요'));
   const title=(doc.querySelector('work-title')||doc.querySelector('movement-title')||{}).textContent||name;
   const {notes, duration}=parseMusicXml(doc);
-  if(!notes.length) throw new Error('악보에서 음표를 찾지 못했어요');
+  if(!notes.length) throw new Error(T('악보에서 음표를 찾지 못했어요'));
   const song={ id:'s'+Date.now(), title:title.trim()||name, created:Date.now(), duration, notes, audio:null, offset:0 };
   try{ await DB.put(song); }catch(e){}
   busy(false); renderSongs(); openSong(song,null);
@@ -450,7 +455,7 @@ function parseMusicXml(doc){
 }
 function showScoreGuide(name){
   $('#guide').classList.add('show');
-  $('#guideLead').textContent=`「${name}」은 PDF·사진 악보예요. 먼저 MusicXML로 바꾼 다음 올려 주세요.`;
+  $('#guideLead').textContent=T('「{0}」은 PDF·사진 악보예요. 먼저 MusicXML로 바꾼 다음 올려 주세요.',name);
 }
 
 /* ======================= 연습용 음표 고르기 ======================= */
@@ -505,13 +510,13 @@ const synth={ ctx:null,
 
 function openSong(song, rawData){
   raw=rawData||null;
-  cur.song=song; $('#ptitle').textContent=song.title;
+  cur.song=song; $('#ptitle').textContent=song.sample?T(song.title):song.title;
   if(cur.url) URL.revokeObjectURL(cur.url);
   cur.audioEl && cur.audioEl.pause();
   cur.audioEl=null;
   if(song.audio){ cur.url=URL.createObjectURL(song.audio); const a=new Audio(cur.url); a.preload='auto'; a.preservesPitch=true; a.mozPreservesPitch=true; a.webkitPreservesPitch=true; a.volume=+$('#mrVol').value; cur.audioEl=a; }
-  $('#sens').value=song.sens||0.4; $('#sensVal').textContent=raw?`(${song.sens||0.4})`:'(이 곡은 조절 불가)'; $('#sens').disabled=!raw;
-  $('#offVal').textContent=(song.offset||0).toFixed(2)+'초';
+  $('#sens').value=song.sens||0.4; $('#sensVal').textContent=raw?`(${song.sens||0.4})`:T('(이 곡은 조절 불가)'); $('#sens').disabled=!raw;
+  $('#offVal').textContent=T('{0}초',(song.offset||0).toFixed(2));
   $('#guideSnd').checked=!song.audio;   // MR이 없는 곡(샘플·악보)은 멜로디 소리를 켜서 들으며 연습
   $('#home').classList.add('hidden'); $('#play').classList.remove('hidden');
   prepare(); resize(); reset();
@@ -550,12 +555,12 @@ function reset(){
   cur.notes.forEach(n=>{ n.hit=false; n.miss=false; });
   if(cur.audioEl){ cur.audioEl.pause(); try{ cur.audioEl.currentTime=0; }catch(e){} }
   $('#result').classList.add('hidden');
-  $('#playBtn').textContent='▶ 시작'; updateScore(); draw();
+  $('#playBtn').textContent=T('▶ 시작'); updateScore(); draw();
 }
 function togglePlay(){
   synth.ensure();
-  if(cur.playing){ cur.playing=false; cur.audioEl&&cur.audioEl.pause(); $('#playBtn').textContent='▶ 계속'; return; }
-  cur.playing=true; cur.lastTs=performance.now(); $('#playBtn').textContent='⏸ 멈춤';
+  if(cur.playing){ cur.playing=false; cur.audioEl&&cur.audioEl.pause(); $('#playBtn').textContent=T('▶ 계속'); return; }
+  cur.playing=true; cur.lastTs=performance.now(); $('#playBtn').textContent=T('⏸ 멈춤');
   requestAnimationFrame(loop);
 }
 $('#playBtn').onclick=togglePlay;
@@ -606,7 +611,7 @@ function judgeMisses(){
 function hit(n, dt){
   n.hit=true; cur.hits++; cur.combo++; cur.maxCombo=Math.max(cur.maxCombo,cur.combo);
   const perfect=Math.abs(dt)<=WIN_PERFECT; cur.score+= (perfect?100:60) + Math.min(50,cur.combo*2);
-  showToast(perfect?'퍼펙트!':'좋아요'); updateScore();
+  showToast(perfect?T('퍼펙트!'):T('좋아요')); updateScore();
 }
 // 건반을 눌렀을 때
 function pressKey(p, fromMidi){
@@ -632,10 +637,10 @@ function finish(){
   const total=cur.notes.length||1, acc=cur.hits/total;
   $('#rStars').textContent= acc>=0.9?'★★★':acc>=0.7?'★★☆':acc>=0.4?'★☆☆':'☆☆☆';
   $('#rScore').textContent=cur.score.toLocaleString();
-  $('#rDetail').textContent=`맞힌 음 ${cur.hits}/${total} (${Math.round(acc*100)}%) · 최고 콤보 ${cur.maxCombo}`;
-  $('#result').classList.remove('hidden'); $('#playBtn').textContent='▶ 시작';
+  $('#rDetail').textContent=T('맞힌 음 {0}/{1} ({2}%) · 최고 콤보 {3}',cur.hits,total,Math.round(acc*100),cur.maxCombo);
+  $('#result').classList.remove('hidden'); $('#playBtn').textContent=T('▶ 시작');
 }
-function updateScore(){ $('#score').textContent=cur.score.toLocaleString(); $('#combo').textContent=cur.combo>=3?`${cur.combo} 콤보`:''; }
+function updateScore(){ $('#score').textContent=cur.score.toLocaleString(); $('#combo').textContent=cur.combo>=3?T('{0} 콤보',cur.combo):''; }
 let toastT; function showToast(s){ const el=$('#toast'); el.textContent=s; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),350); }
 
 /* ======================= 그리기 ======================= */
@@ -693,7 +698,7 @@ function drawKey(k, now, active){
   g.strokeStyle='#9aa0ad'; g.lineWidth=1; g.strokeRect(k.x+0.5,k.y,k.w-1,k.h);
   if(!k.black){
     g.fillStyle='#8a8f9c'; g.font=`${Math.min(12,k.w*0.4)}px sans-serif`; g.textAlign='center';
-    if(k.p%12===0) g.fillText('도'+(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-8);
+    if(k.p%12===0) g.fillText(NAMES_KO[0]+(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-8);
     const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#c2410c'; g.fillText(lab, k.x+k.w/2, k.y+k.h-24); }
   } else { const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#ffb27a'; g.font=`${Math.min(11,k.w*0.5)}px sans-serif`; g.textAlign='center'; g.fillText(lab,k.x+k.w/2,k.y+k.h-8); } }
 }
@@ -710,7 +715,7 @@ function drawTiles(){
   }
   g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
   g.fillStyle='#5b6170'; g.font='12px sans-serif'; g.textAlign='center';
-  ['D','F','J','K'].forEach((k,l)=>g.fillText(isTouch?'누르기':k, l*lw+lw/2, H-14));
+  ['D','F','J','K'].forEach((k,l)=>g.fillText(isTouch?T('누르기'):k, l*lw+lw/2, H-14));
 }
 function roundRect(x,y,w,h,r){ r=Math.min(r,w/2,h/2); g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
 
@@ -743,18 +748,18 @@ document.addEventListener('keydown', e=>{
 document.addEventListener('keyup', e=>downKeys.delete(e.key.toLowerCase()));
 function updateHint(){
   $('#hint').textContent = cur.mode==='tiles'
-    ? (isTouch?'떨어지는 검은 타일이 주황 선에 닿을 때 그 줄을 눌러요':'D · F · J · K 키로 타일을 눌러요 · 스페이스: 시작/멈춤')
-    : (isTouch?'떨어지는 음이 주황 선에 닿을 때 건반을 눌러요':'키보드 A~; 가 흰 건반, W E T Y U O P 가 검은 건반 · ←→ 옥타브 이동 · 스페이스: 시작/멈춤');
+    ? (isTouch?T('떨어지는 검은 타일이 주황 선에 닿을 때 그 줄을 눌러요'):T('D · F · J · K 키로 타일을 눌러요 · 스페이스: 시작/멈춤'))
+    : (isTouch?T('떨어지는 음이 주황 선에 닿을 때 건반을 눌러요'):T('키보드 A~; 가 흰 건반, W E T Y U O P 가 검은 건반 · ←→ 옥타브 이동 · 스페이스: 시작/멈춤'));
 }
 // 전자피아노 (Web MIDI: PC의 Chrome·Edge, 안드로이드 Chrome)
 async function connectMidi(){
   const st=$('#midiStatus');
-  if(!navigator.requestMIDIAccess){ st.textContent='이 브라우저는 전자피아노 연결을 지원하지 않아요. PC나 안드로이드의 Chrome·Edge를 써 주세요. (아이폰·아이패드는 지원 안 됨)'; return; }
+  if(!navigator.requestMIDIAccess){ st.textContent=T('이 브라우저는 전자피아노 연결을 지원하지 않아요. PC나 안드로이드의 Chrome·Edge를 써 주세요. (아이폰·아이패드는 지원 안 됨)'); return; }
   try{
     const acc=await navigator.requestMIDIAccess();
-    const bind=()=>{ let n=0; acc.inputs.forEach(inp=>{ n++; inp.onmidimessage=m=>{ const [s,note,vel]=m.data; if((s&0xf0)===0x90 && vel>0) pressKey(note,true); }; }); st.textContent = n ? `🎹 연결됨: ${[...acc.inputs.values()].map(i=>i.name).join(', ')}` : 'USB로 전자피아노를 연결한 뒤 다시 눌러 주세요.'; };
+    const bind=()=>{ let n=0; acc.inputs.forEach(inp=>{ n++; inp.onmidimessage=m=>{ const [s,note,vel]=m.data; if((s&0xf0)===0x90 && vel>0) pressKey(note,true); }; }); st.textContent = n ? '🎹 '+T('연결됨: {0}',[...acc.inputs.values()].map(i=>i.name).join(', ')) : T('USB로 전자피아노를 연결한 뒤 다시 눌러 주세요.'); };
     bind(); acc.onstatechange=bind;
-  }catch(e){ st.textContent='연결을 허락하지 않았거나 실패했어요.'; }
+  }catch(e){ st.textContent=T('연결을 허락하지 않았거나 실패했어요.'); }
 }
 
 /* ======================= 설정 ======================= */
@@ -777,7 +782,7 @@ $('#moreBtn').onclick=()=>{ if(cur.playing) togglePlay(); $('#more').classList.a
 $('#moreClose').onclick=()=>$('#more').classList.remove('show');
 $('#sens').oninput=()=>{ $('#sensVal').textContent=`(${$('#sens').value})`; };
 $('#sens').onchange=async ()=>{ if(!raw) return; cur.song.sens=+$('#sens').value; cur.song.notes=notesFromRaw(cur.song.sens); try{ await DB.put(cur.song); }catch(e){} prepare(); layoutKeys(); reset(); };
-function setOffset(d){ cur.song.offset=Math.round(((cur.song.offset||0)+d)*100)/100; $('#offVal').textContent=cur.song.offset.toFixed(2)+'초'; if(!cur.song.sample) DB.put(cur.song).catch(()=>{}); draw(); }
+function setOffset(d){ cur.song.offset=Math.round(((cur.song.offset||0)+d)*100)/100; $('#offVal').textContent=T('{0}초',cur.song.offset.toFixed(2)); if(!cur.song.sample) DB.put(cur.song).catch(()=>{}); draw(); }
 $('#offM').onclick=()=>setOffset(-0.05); $('#offP').onclick=()=>setOffset(0.05);
 $('#saveJson').onclick=exportPractice;
 $('#saveMidi').onclick=exportMidi;

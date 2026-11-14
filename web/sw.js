@@ -1,9 +1,11 @@
 // 오프라인에서도 앱이 열리도록 파일을 저장해 두는 서비스 워커
-const VERSION = 'kc-v8';
+const VERSION = 'kc-v9';
 const CORE = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './i18n.js',
+  './i18n-dict.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './app/',

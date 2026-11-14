@@ -13,6 +13,8 @@
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="키 체인저">
+<script src="../i18n-dict.js"></script>
+<script src="../i18n.js"></script>
 <script src="config.js"></script>
 <script src="vendor/jspdf.umd.min.js"></script>
 <script src="vendor/html2canvas.min.js"></script>
@@ -128,6 +130,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
 <header class="top">
   <a class="logo" href="../" style="color:inherit;text-decoration:none"><span class="mark">♯</span>키 체인저</a>
   <a href="../piano/" class="btn sm" style="margin-left:auto;text-decoration:none">🎹 피아노 연습</a>
+  <span id="langBox"></span>
   <div class="tabs" role="tablist" style="margin-left:8px">
     <button class="on" data-tab="chord">코드보</button>
     <button data-tab="score">오선 악보 (MusicXML)</button>
@@ -200,7 +203,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
       </div>
     </div>
 
-    <div class="note" id="photoNote">
+    <div class="note" id="photoNote" data-i18n-html>
       <b>사진·스캔 코드보</b>는 글자 인식(OCR)으로 읽어 텍스트로 바꿔요. 처음 한 번은 인식 데이터를 받느라 조금 걸려요. 반듯하게 찍은 인쇄 악보일수록 정확하고, 읽은 결과는 위 입력칸에서 고칠 수 있어요.
     </div>
   </aside>
@@ -212,7 +215,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
       <button class="btn primary" id="pdfBtn">PDF 저장</button>
     </div>
     <p class="edit-hint" id="editHint">✏️ 악보의 줄을 누르면 바로 고칠 수 있어요. 코드는 지금 보이는 키 그대로 고치면 돼요. (Enter: 저장 · Esc: 취소 · 내용을 다 지우고 Enter: 줄 삭제)</p>
-    <div class="stage" id="chordStage"><div class="scaler" id="chordScaler"></div></div>
+    <div class="stage" id="chordStage" data-no-i18n><div class="scaler" id="chordScaler"></div></div>
   </section>
 </main>
 
@@ -249,7 +252,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
         </div>
       </div>
     </div>
-    <div class="note">
+    <div class="note" data-i18n-html>
       <b>합창 악보(소프라노·알토·테너·베이스)</b>도 모든 성부의 음표·조표·코드가 한 번에 새 키로 바뀌고, 가사는 그대로 따라가요.<br><br>
       PDF나 사진 악보는 먼저 MusicXML로 바꿔서 넣어 주세요. 위 「변환 방법 보기」에 순서가 있어요. Finale·Sibelius·Dorico 파일은 각 프로그램에서 MusicXML로 내보내면 돼요.
     </div>
@@ -261,7 +264,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
     </div>
     <div class="stage" id="scoreStage">
       <div class="empty" id="scoreEmpty">MusicXML 악보를 넣으면 여기에 표시돼요.</div>
-      <div class="scaler" id="scoreScaler"><div id="scoreBox"></div></div>
+      <div class="scaler" id="scoreScaler" data-no-i18n><div id="scoreBox"></div></div>
     </div>
   </section>
 </main>
@@ -276,9 +279,9 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
     <div class="omr-opt">
       <div class="omr-head"><span class="tag">휴대폰 · 추천</span><b>PlayScore 2</b> <span class="muted">사진·PDF 악보 인식 앱 (iPhone·Android)</span></div>
       <ol>
-        <li>앱을 설치하고 악보를 <b>밝은 곳에서 정면으로</b> 찍거나 PDF를 불러와요.</li>
+        <li data-i18n-html>앱을 설치하고 악보를 <b>밝은 곳에서 정면으로</b> 찍거나 PDF를 불러와요.</li>
         <li>재생해서 음이 맞게 인식됐는지 들어 봐요. (성부별 소리 듣기·조옮김도 앱 안에서 가능)</li>
-        <li>공유 → <b>MusicXML로 내보내기</b> (Professional 구독 필요)</li>
+        <li data-i18n-html>공유 → <b>MusicXML로 내보내기</b> (Professional 구독 필요)</li>
         <li>받은 파일을 이 화면에 넣어요.</li>
       </ol>
       <a class="btn sm" href="https://www.playscore.co/" target="_blank" rel="noopener">PlayScore 2 홈페이지</a>
@@ -287,9 +290,9 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
     <div class="omr-opt">
       <div class="omr-head"><span class="tag gray">PC · 무료</span><b>MuseScore</b> <span class="muted">무료 악보 프로그램</span></div>
       <ol>
-        <li>아래 「PDF 변환」 페이지에 PDF를 올리면 MuseScore 파일로 바꿔 줘요. (로그인이 필요할 수 있어요)</li>
+        <li data-i18n-html>아래 「PDF 변환」 페이지에 PDF를 올리면 MuseScore 파일로 바꿔 줘요. (로그인이 필요할 수 있어요)</li>
         <li>받은 파일을 MuseScore로 열고, 틀린 음이 있으면 고쳐요.</li>
-        <li>파일 → 내보내기 → <b>MusicXML</b>로 저장해요.</li>
+        <li data-i18n-html>파일 → 내보내기 → <b>MusicXML</b>로 저장해요.</li>
         <li>저장한 파일을 이 화면에 넣어요.</li>
       </ol>
       <div class="row">
@@ -301,7 +304,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
     <div class="omr-tips">
       <b>잘 읽히게 하는 요령</b>
       <ul>
-        <li>사진보다 <b>원본 PDF</b>가 훨씬 정확해요. 종이 악보는 스캐너로 300dpi 스캔이 가장 좋아요.</li>
+        <li data-i18n-html>사진보다 <b>원본 PDF</b>가 훨씬 정확해요. 종이 악보는 스캐너로 300dpi 스캔이 가장 좋아요.</li>
         <li>사진은 그림자 없이 밝게, 악보가 화면에 반듯하게 꽉 차도록 찍어 주세요.</li>
         <li>4성부 합창 악보는 인식 후 한 번 들어 보고 틀린 음을 고친 다음 넣으면 결과가 깔끔해요.</li>
       </ul>
@@ -314,6 +317,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
 <div class="busy" id="busy"><div class="card"><div class="spin"></div><div id="busyMsg">처리 중…</div></div></div>
 
 <script>
+I18N.apply(document.body); I18N.switcher(document.getElementById("langBox"));
 /* ================= 공통 ================= */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -338,10 +342,10 @@ async function saveFile(filename, data){
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 30000);
-    toast('저장했어요: '+filename); return true;
+    toast(T('저장했어요: {0}',filename)); return true;
   }catch(e){
-    if(e && /cancel/i.test(e.message||'')) { toast('저장을 취소했어요.'); return false; }
-    console.error(e); toast('저장하지 못했어요: '+(e.message||e)); return false;
+    if(e && /cancel/i.test(e.message||'')) { toast(T('저장을 취소했어요.')); return false; }
+    console.error(e); toast(T('저장하지 못했어요: {0}',e.message||e)); return false;
   }
 }
 
@@ -370,8 +374,8 @@ function spellArr(key, pref){
   return FLAT_KEYS.has(key)?FLAT:SHARP;
 }
 function fillKeySelect(sel){
-  sel.innerHTML = '<optgroup label="장조 (Major)">'+MAJOR_KEYS.map(k=>`<option value="${k}">${k}</option>`).join('')+
-    '</optgroup><optgroup label="단조 (minor)">'+MINOR_KEYS.map(k=>`<option value="${k}">${k}</option>`).join('')+'</optgroup>';
+  sel.innerHTML = '<optgroup label="'+T('장조 (Major)')+'">'+MAJOR_KEYS.map(k=>`<option value="${k}">${k}</option>`).join('')+
+    '</optgroup><optgroup label="'+T('단조 (minor)')+'">'+MINOR_KEYS.map(k=>`<option value="${k}">${k}</option>`).join('')+'</optgroup>';
 }
 function normKeyStr(s){
   if(!s) return null;
@@ -387,7 +391,7 @@ const ROOT = '[A-G](?:#|b|♯|♭)?';
 const QUAL = '(?:maj|min|dim|aug|sus|add|alt|omit|no|M|m|\\+|-|°|ø|Δ|\\^|\\d+|#|b|♯|♭|\\(|\\)|,|\\*)*';
 const CHORD_RE = new RegExp(`^(${ROOT})(${QUAL})(?:\\/(${ROOT}))?$`);
 const IGNORE_RE = /^(\|+|\|\|?:|:\|\|?|-+|\/+|%|x\d+|\(x\d+\)|\d+x|n\.?c\.?|\.+|→|~+|:|\(|\)|\*+)$/i;
-const SECTION_RE = /^\s*(\[[^\]]+\]|\(?\s*(intro|verse|chorus|pre-?chorus|bridge|outro|interlude|instrumental|solo|tag|ending|coda|refrain|hook|전주|간주|후주|후렴|브릿지|브리지|도입|\d+\s*절|[1-9]\.?\s*절)\b[^\n]{0,20}\)?:?)\s*$/i;
+const SECTION_RE = /^\s*(\[[^\]]+\]|\(?\s*(intro|verse|chorus|pre-?chorus|bridge|outro|interlude|instrumental|solo|tag|ending|coda|refrain|hook|전주|간주|후주|후렴|브릿지|브리지|도입|\d+\s*절|[1-9]\.?\s*절|イントロ|アウトロ|間奏|前奏|後奏|サビ|[A-D]メロ|ブリッジ|\d+番)\b[^\n]{0,20}\)?:?)\s*$/i;
 
 function splitTok(tok){ const m=/^([(\[|:]*)(.*?)([)\]|:,.]*)$/.exec(tok); return m?[m[1],m[2],m[3]]:['',tok,'']; }
 function isChord(s){ return CHORD_RE.test(s); }
@@ -483,11 +487,11 @@ function detectKey(text){
 const st = { orig:'G', target:'G', spell:'auto', capo:0, fs:15, origManual:false, targetManual:false, metaKey:null };
 const origSel=$('#origKey'), tgtSel=$('#targetKey');
 fillKeySelect(origSel); fillKeySelect(tgtSel);
-$('#capo').innerHTML = '<option value="0">카포 없음</option>'+Array.from({length:9},(_,i)=>`<option value="${i+1}">카포 ${i+1}프렛</option>`).join('');
+$('#capo').innerHTML = '<option value="0">'+T('카포 없음')+'</option>'+Array.from({length:9},(_,i)=>`<option value="${i+1}">${T('카포 {0}프렛',i+1)}</option>`).join('');
 
 function shiftNow(){ const o=parseKey(st.orig), t=parseKey(st.target); return ((t.pc-o.pc)%12+12)%12; }
 function displayKey(){ const t=parseKey(st.target); if(!st.capo) return st.target; return keyName(t.pc-st.capo, t.minor); }
-function shiftLabel(n){ if(n===0) return '원키'; const up=n<=6?n:n-12; return (up>0?'+':'')+up+' 반음'; }
+function shiftLabel(n){ if(n===0) return T('원키'); const up=n<=6?n:n-12; return T('{0} 반음',(up>0?'+':'')+up); }
 
 function parseSheet(text){
   const meta={title:null, artist:null, key:null};
@@ -553,12 +557,12 @@ function blockHTML(b){
 }
 
 function headHTML(meta){
-  const title = $('#title').value.trim() || meta.title || '제목 없음';
+  const title = $('#title').value.trim() || meta.title || T('제목 없음');
   const artist = $('#artist').value.trim() || meta.artist || '';
   const dk = displayKey();
   let sub = '';
-  if(st.capo) sub = `Capo ${st.capo} · ${dk} 코드로 연주<br>`;
-  sub += (st.target!==st.orig) ? `원키 ${st.orig}` : '원키';
+  if(st.capo) sub = T('Capo {0} · {1} 코드로 연주',st.capo,dk)+'<br>';
+  sub += (st.target!==st.orig) ? T('원키 {0}',st.orig) : T('원키');
   return `<div class="sheet-head"><div><div class="t">${esc(title)}</div>${artist?`<div class="a">${esc(artist)}</div>`:''}</div>
     <div class="k"><span class="big">Key ${esc(st.target)}</span><br>${sub}</div></div>`;
 }
@@ -573,17 +577,17 @@ function renderChord(){
     const mk = normKeyStr(pre.meta.key);
     const det = mk || detectKey(text);
     if(det && det!==st.orig){ st.orig=det; if(!st.targetManual) st.target=det; }
-    $('#detNote').textContent = det ? (mk?'(악보 표기)':'(자동 감지)') : '';
+    $('#detNote').textContent = det ? (mk?T('(악보 표기)'):T('(자동 감지)')) : '';
   }
   origSel.value=st.orig; tgtSel.value=st.target;
   $('#shiftVal').textContent = shiftLabel(shiftNow());
-  $('#capoNote').textContent = st.capo ? `${displayKey()} 폼으로 잡으면 ${st.target} 키 소리` : '';
+  $('#capoNote').textContent = st.capo ? T('{0} 폼으로 잡으면 {1} 키 소리',displayKey(),st.target) : '';
   renderCapoSug();
 
   const parsed = parseSheet(text);
   lastParsed = parsed;
   if(!parsed.items.length){
-    scaler.innerHTML = '<div class="empty">왼쪽에 코드보를 넣으면 여기에 새 키로 바뀐 악보가 보여요.</div>';
+    scaler.innerHTML = '<div class="empty">'+T('왼쪽에 코드보를 넣으면 여기에 새 키로 바뀐 악보가 보여요.')+'</div>';
     scaler.style.transform=''; $('#chordStage').style.height='';
     $('#chordInfo').innerHTML=''; return;
   }
@@ -611,7 +615,7 @@ function renderChord(){
   pages.forEach((p,i)=>p.querySelector('.pg').textContent = pages.length>1 ? `${i+1} / ${pages.length}` : '');
   fitScale('#chordStage', scaler, 794);
   const n=collectChords(text).length;
-  $('#chordInfo').innerHTML = `<b>${st.orig}</b> → <b>${st.target}</b>${st.capo?` (카포 ${st.capo}, ${displayKey()} 폼)`:''} · 코드 ${n}개 · ${pages.length}페이지`;
+  $('#chordInfo').innerHTML = `<b>${st.orig}</b> → <b>${st.target}</b>${st.capo?' '+T('(카포 {0}, {1} 폼)',st.capo,displayKey()):''} · ${T('코드 {0}개 · {1}페이지',n,pages.length)}`;
 }
 function fitScale(stageSel, scaler, w){
   const stage=$(stageSel);
@@ -625,7 +629,7 @@ function renderCapoSug(){
   const easy = t.minor ? [9,4,2] : [0,7,2,9,4];
   const sug=[];
   for(let c=1;c<=7;c++){ const pc=((t.pc-c)%12+12)%12; if(easy.includes(pc)) sug.push({c, k:keyName(pc,t.minor)}); }
-  $('#capoSug').innerHTML = sug.length ? '<span class="small" style="color:var(--muted);font-size:12px;align-self:center">추천:</span>' + sug.map(s=>`<span class="chip ${st.capo===s.c?'on':''}" data-c="${s.c}">카포 ${s.c} · ${s.k} 폼</span>`).join('') : '';
+  $('#capoSug').innerHTML = sug.length ? '<span class="small" style="color:var(--muted);font-size:12px;align-self:center">'+T('추천:')+'</span>' + sug.map(s=>`<span class="chip ${st.capo===s.c?'on':''}" data-c="${s.c}">${T('카포 {0} · {1} 폼',s.c,s.k)}</span>`).join('') : '';
 }
 
 function transposedText(){
@@ -633,7 +637,7 @@ function transposedText(){
   const title=$('#title').value.trim()||lastParsed.meta.title||'';
   const artist=$('#artist').value.trim()||lastParsed.meta.artist||'';
   let head = [title, artist].filter(Boolean).join(' - ');
-  head += (head?'\n':'') + `Key: ${st.target}` + (st.capo?` (Capo ${st.capo}, ${displayKey()} 폼)`:'') + (st.target!==st.orig?` / 원키 ${st.orig}`:'');
+  head += (head?'\n':'') + `Key: ${st.target}` + (st.capo?' '+T('(Capo {0}, {1} 폼)',st.capo,displayKey()):'') + (st.target!==st.orig?' / '+T('원키 {0}',st.orig):'');
   const body = lastParsed.items.map(it=> it.t==='gap' ? '' : it.t==='s' ? `[${it.s}]` : it.s).join('\n');
   return head+'\n\n'+body+'\n';
 }
@@ -699,7 +703,7 @@ tgtSel.addEventListener('change', ()=>{ st.target=tgtSel.value; st.targetManual=
   const o=parseKey(st.orig), t=parseKey(st.target);
   if(o.minor!==t.minor){ // 장/단조가 다르면 관계조로 맞춘다
     st.target = o.minor ? keyName(t.pc+9,true) : keyName(t.pc+3,false);
-    toast(`원래 키가 ${o.minor?'단조':'장조'}라서 ${st.target}(으)로 맞췄어요.`);
+    toast(o.minor?T('원래 키가 단조라서 {0}(으)로 맞췄어요.',st.target):T('원래 키가 장조라서 {0}(으)로 맞췄어요.',st.target));
   }
   renderChord(); });
 function step(d){ const t=parseKey(st.target); st.target=keyName(t.pc+d, t.minor); st.targetManual=true; renderChord(); }
@@ -720,7 +724,7 @@ function loadText(text, fresh){
   renderChord();
 }
 
-const SAMPLE = `{title: 봄날의 산책}
+const SAMPLES_BY_LANG = { ko: `{title: 봄날의 산책}
 {artist: 예제 곡}
 {key: G}
 
@@ -742,7 +746,54 @@ C            D
 [Bm]우리 웃음 [Em]남아 있어
 [Am7]다시 봄이 [D]오면
 [G]그날처럼 [D/F#]걸어가자 [Em]   [C]  [D]  [G]
-`;
+`,
+ en: `{title: A Walk in Spring}
+{artist: Sample Song}
+{key: G}
+
+[Intro]
+G    D/F#   Em    C    | D
+
+[Verse 1]
+G            D/F#
+Sunlight on the quiet road
+Em           C
+Walking slowly, step by step
+G            D/F#
+Carried on the gentle breeze
+C            D
+Comes a little song
+
+[Chorus]
+[C]On the road we [D]walked as one
+[Bm]Still our laughter [Em]lingers on
+[Am7]When the spring [D]comes again
+[G]Let us walk like [D/F#]then [Em]   [C]  [D]  [G]
+`,
+ ja: `{title: 春の散歩道}
+{artist: サンプル曲}
+{key: G}
+
+[Intro]
+G    D/F#   Em    C    | D
+
+[Verse 1]
+G            D/F#
+ひかり ふりそそぐ こみちを
+Em           C
+ゆっくり あるいて ゆく
+G            D/F#
+かぜに のって きこえる
+C            D
+ちいさな うた
+
+[Chorus]
+[C]ともに あるいた [D]あの みちに
+[Bm]ふたりの えがおが [Em]のこる
+[Am7]また はるが [D]きたら
+[G]あの ひの ように [D/F#]あるこう [Em]   [C]  [D]  [G]
+` };
+const SAMPLE = SAMPLES_BY_LANG[I18N.lang] || SAMPLES_BY_LANG.ko;
 
 /* ================= 파일 입력 (코드보) ================= */
 function setStatus(sel, msg, cls){ const el=$(sel); el.textContent=msg||''; el.className='status '+(cls||''); }
@@ -768,16 +819,16 @@ async function handleChordFiles(files){
   const pdf = files.find(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
   const txt = files.find(f=>!imgs.includes(f)&&f!==pdf);
   try{
-    if(txt){ loadText(await readTextFile(txt), true); setStatus('#chordStatus', `불러왔어요: ${txt.name}`, 'ok'); guessTitle(txt.name); return; }
+    if(txt){ loadText(await readTextFile(txt), true); setStatus('#chordStatus', T('불러왔어요: {0}',txt.name), 'ok'); guessTitle(txt.name); return; }
     if(pdf){ await handleChordPdf(pdf); return; }
     if(imgs.length){ await readImagesWithClaude(imgs, imgs.map(f=>f.name).join(', ')); return; }
-  }catch(e){ console.error(e); setStatus('#chordStatus', '파일을 읽지 못했어요: '+(e.message||e), 'err'); busy(false); }
+  }catch(e){ console.error(e); setStatus('#chordStatus', T('파일을 읽지 못했어요: {0}',e.message||e), 'err'); busy(false); }
 }
 function guessTitle(name){ if(!$('#title').value && lastParsed && !lastParsed.meta.title){ $('#title').value=name.replace(/\.[^.]+$/,''); renderChord(); } }
 
 async function handleChordPdf(file){
-  if(!window.pdfjsLib) throw new Error('PDF 모듈을 불러오지 못했어요');
-  busy(true,'PDF 읽는 중…');
+  if(!window.pdfjsLib) throw new Error(T('PDF 모듈을 불러오지 못했어요'));
+  busy(true,T('PDF 읽는 중…'));
   const data = new Uint8Array(await file.arrayBuffer());
   const doc = await pdfjsLib.getDocument({data, isEvalSupported:false}).promise;
   let out=[], chars=0;
@@ -790,9 +841,9 @@ async function handleChordPdf(file){
   }
   busy(false);
   if(chars < 15){
-    setStatus('#chordStatus','글자가 없는 스캔 PDF예요. 이미지로 읽어 볼게요…');
+    setStatus('#chordStatus',T('글자가 없는 스캔 PDF예요. 이미지로 읽어 볼게요…'));
     const blobs=[];
-    busy(true,'PDF 페이지를 이미지로 바꾸는 중…');
+    busy(true,T('PDF 페이지를 이미지로 바꾸는 중…'));
     for(let p=1;p<=Math.min(doc.numPages,5);p++) blobs.push(await renderPdfPage(doc,p));
     busy(false);
     await readImagesWithClaude(blobs, file.name);
@@ -800,7 +851,7 @@ async function handleChordPdf(file){
   }
   loadText(out.join('\n\n'), true);
   guessTitle(file.name);
-  setStatus('#chordStatus', `PDF에서 텍스트를 가져왔어요 (${doc.numPages}쪽). 줄 맞춤이 어긋나면 입력칸에서 고쳐 주세요.`, 'ok');
+  setStatus('#chordStatus', T('PDF에서 텍스트를 가져왔어요 ({0}쪽). 줄 맞춤이 어긋나면 입력칸에서 고쳐 주세요.',doc.numPages), 'ok');
 }
 function pdfItemsToText(items){
   if(!items.length) return '';
@@ -861,7 +912,7 @@ function loadTesseract(){
   if(!tessLoading) tessLoading = new Promise((res,rej)=>{
     const sc=document.createElement('script');
     sc.src=`https://cdn.jsdelivr.net/npm/tesseract.js@${TESS_VER}/dist/tesseract.min.js`;
-    sc.onload=res; sc.onerror=()=>{ tessLoading=null; rej(new Error('글자 인식 모듈을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.')); };
+    sc.onload=res; sc.onerror=()=>{ tessLoading=null; rej(new Error(T('글자 인식 모듈을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.'))); };
     document.head.appendChild(sc);
   });
   return tessLoading;
@@ -1006,11 +1057,11 @@ function ocrToText(dataLyric, width, dataChord){
 }
 async function readImagesLocal(blobs, label){
   const lang=$('#ocrLang').value;
-  busy(true,'글자 인식 준비 중… (처음 한 번은 데이터를 받느라 조금 걸려요)');
-  setStatus('#chordStatus','읽는 중: '+label);
+  busy(true,T('글자 인식 준비 중… (처음 한 번은 데이터를 받느라 조금 걸려요)'));
+  setStatus('#chordStatus',T('읽는 중: {0}',label));
   const progress=m=>{
-    if(m.status==='recognizing text') $('#busyMsg').textContent=`글자 읽는 중… ${Math.round(m.progress*100)}%`;
-    else if(/load/i.test(m.status||'')) $('#busyMsg').textContent='인식 데이터 받는 중…'+(m.progress?` ${Math.round(m.progress*100)}%`:'');
+    if(m.status==='recognizing text') $('#busyMsg').textContent=T('글자 읽는 중… {0}%',Math.round(m.progress*100));
+    else if(/load/i.test(m.status||'')) $('#busyMsg').textContent=T('인식 데이터 받는 중…')+(m.progress?` ${Math.round(m.progress*100)}%`:'');
   };
   try{
     const parts=[];
@@ -1018,25 +1069,25 @@ async function readImagesLocal(blobs, label){
       const canvas=await prepImage(blobs[i]);
       // 1) 영어로 읽기 — 코드(알파벳)는 이쪽이 정확
       let w=await getOcrWorker('eng', progress);
-      $('#busyMsg').textContent=`코드 읽는 중… (${i+1}/${blobs.length})`;
+      $('#busyMsg').textContent=T('코드 읽는 중… ({0}/{1})',i+1,blobs.length);
       const {data:dc}=await w.recognize(canvas, {}, {blocks:true, text:true});
       let dl=dc;
       // 2) 가사 언어가 영어가 아니면 한 번 더 읽어서 가사를 가져온다
       if(lang!=='eng'){
         w=await getOcrWorker(lang, progress);
-        $('#busyMsg').textContent=`가사 읽는 중… (${i+1}/${blobs.length})`;
+        $('#busyMsg').textContent=T('가사 읽는 중… ({0}/{1})',i+1,blobs.length);
         dl=(await w.recognize(canvas, {}, {blocks:true, text:true})).data;
       }
       parts.push(ocrToText(dl, canvas.width, dc) || dl.text || '');
     }
     const text=parts.join('\n\n').trim();
-    if(!text) throw new Error('글자를 찾지 못했어요');
+    if(!text) throw new Error(T('글자를 찾지 못했어요'));
     loadText(text, true);
     guessTitle(label.split(',')[0]);
-    setStatus('#chordStatus','사진에서 읽어 왔어요. 코드 위치나 철자가 틀린 곳은 입력칸에서 고쳐 주세요.','ok');
+    setStatus('#chordStatus',T('사진에서 읽어 왔어요. 코드 위치나 철자가 틀린 곳은 입력칸에서 고쳐 주세요.'),'ok');
   }catch(e){
     console.error(e);
-    setStatus('#chordStatus','사진을 읽지 못했어요: '+(e.message||e),'err');
+    setStatus('#chordStatus',T('사진을 읽지 못했어요: {0}',e.message||e),'err');
   }finally{ busy(false); }
 }
 
@@ -1053,8 +1104,8 @@ async function readImagesWithClaude(blobs, label){
   if(!CFG.ocrEndpoint){ return readImagesLocal(blobs, label); }
   const MAX = 4;
   const use = blobs.slice(0, MAX);
-  busy(true,'코드보를 읽는 중… (보통 20~60초)');
-  setStatus('#chordStatus','읽는 중: '+label);
+  busy(true,T('코드보를 읽는 중… (보통 20~60초)'));
+  setStatus('#chordStatus',T('읽는 중: {0}',label));
   try{
     const images = [];
     for(const b of use) images.push(await shrinkImage(b));
@@ -1062,31 +1113,31 @@ async function readImagesWithClaude(blobs, label){
     const j = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(j.error || ('HTTP '+res.status));
     const clean = String(j.text||'').replace(/^```[a-z]*\n?|```\s*$/gm,'').trim();
-    if(!clean) throw new Error('읽은 내용이 없어요');
+    if(!clean) throw new Error(T('읽은 내용이 없어요'));
     loadText(clean, true);
-    setStatus('#chordStatus', `사진에서 읽어 왔어요${blobs.length>use.length?` (앞 ${use.length}장만)`:''}. 틀린 곳이 있으면 입력칸에서 고쳐 주세요.`, 'ok');
+    setStatus('#chordStatus', T('사진에서 읽어 왔어요. 틀린 곳이 있으면 입력칸에서 고쳐 주세요.'), 'ok');
   }catch(e){
-    setStatus('#chordStatus', '읽기에 실패했어요: '+(e.message||e), 'err');
+    setStatus('#chordStatus', T('읽기에 실패했어요: {0}',e.message||e), 'err');
   }finally{ busy(false); }
 }
 
 /* ================= 내보내기 (코드보) ================= */
 $('#copyBtn').onclick = async ()=>{
-  const t=transposedText(); if(!t.trim()) return toast('먼저 코드보를 넣어 주세요.');
-  try{ await navigator.clipboard.writeText(t); toast('복사했어요.'); }catch(e){ toast('복사가 막혀 있어요. 텍스트를 직접 선택해 주세요.'); }
+  const t=transposedText(); if(!t.trim()) return toast(T('먼저 코드보를 넣어 주세요.'));
+  try{ await navigator.clipboard.writeText(t); toast(T('복사했어요.')); }catch(e){ toast(T('복사가 막혀 있어요. 텍스트를 직접 선택해 주세요.')); }
 };
-function fileBase(){ const t=($('#title').value.trim()||(lastParsed&&lastParsed.meta.title)||'코드보').replace(/[\\/:*?"<>|]/g,'_'); return `${t} (${st.target})`; }
-$('#txtBtn').onclick = ()=>{ const t=transposedText(); if(!t.trim()) return toast('먼저 코드보를 넣어 주세요.'); saveFile(fileBase()+'.txt', t); };
+function fileBase(){ const t=($('#title').value.trim()||(lastParsed&&lastParsed.meta.title)||T('코드보')).replace(/[\\/:*?"<>|]/g,'_'); return `${t} (${st.target})`; }
+$('#txtBtn').onclick = ()=>{ const t=transposedText(); if(!t.trim()) return toast(T('먼저 코드보를 넣어 주세요.')); saveFile(fileBase()+'.txt', t); };
 $('#pdfBtn').onclick = async ()=>{
-  const pages=$$('#chordScaler .page'); if(!pages.length) return toast('먼저 코드보를 넣어 주세요.');
-  if(!window.jspdf || !window.html2canvas) return toast('PDF 모듈을 불러오지 못했어요. 새로고침해 주세요.');
-  busy(true,'PDF 만드는 중…');
+  const pages=$$('#chordScaler .page'); if(!pages.length) return toast(T('먼저 코드보를 넣어 주세요.'));
+  if(!window.jspdf || !window.html2canvas) return toast(T('PDF 모듈을 불러오지 못했어요. 새로고침해 주세요.'));
+  busy(true,T('PDF 만드는 중…'));
   try{
     await document.fonts.ready;
     const off=$('#offscreen'); off.innerHTML='';
     const pdf = new jspdf.jsPDF({unit:'mm', format:'a4', orientation:'portrait', compress:true});
     for(let i=0;i<pages.length;i++){
-      $('#busyMsg').textContent=`PDF 만드는 중… ${i+1}/${pages.length}`;
+      $('#busyMsg').textContent=T('PDF 만드는 중… {0}/{1}',i+1,pages.length);
       const clone=pages[i].cloneNode(true); clone.style.boxShadow='none'; clone.style.margin='0';
       off.appendChild(clone);
       const canvas = await html2canvas(clone, {scale:2.5, backgroundColor:'#ffffff', useCORS:true, logging:false, width:794, height:1123, windowWidth:1200});
@@ -1097,7 +1148,7 @@ $('#pdfBtn').onclick = async ()=>{
     const blob = pdf.output('blob');
     busy(false);
     await saveFile(fileBase()+'.pdf', blob);
-  }catch(e){ console.error(e); busy(false); toast('PDF를 만들지 못했어요: '+(e.message||e)); }
+  }catch(e){ console.error(e); busy(false); toast(T('PDF를 만들지 못했어요: {0}',e.message||e)); }
 };
 
 /* ================= 탭 ================= */
@@ -1126,9 +1177,9 @@ function scoreShift(){
 }
 async function loadScore(file){
   if(!file) return;
-  if(!window.opensheetmusicdisplay){ setStatus('#scoreStatus','악보 모듈을 불러오지 못했어요. 새로고침해 주세요.','err'); return; }
-  if(/\.(pdf|png|jpe?g|gif|webp|heic)$/i.test(file.name)){ openOmrGuide(`「${file.name}」은 PDF·사진 악보예요. 아래 방법으로 MusicXML로 바꾼 뒤 다시 넣어 주세요.`); return; }
-  busy(true,'악보 읽는 중…');
+  if(!window.opensheetmusicdisplay){ setStatus('#scoreStatus',T('악보 모듈을 불러오지 못했어요. 새로고침해 주세요.'),'err'); return; }
+  if(/\.(pdf|png|jpe?g|gif|webp|heic)$/i.test(file.name)){ openOmrGuide(T('「{0}」은 PDF·사진 악보예요. 아래 방법으로 MusicXML로 바꾼 뒤 다시 넣어 주세요.',file.name)); return; }
+  busy(true,T('악보 읽는 중…'));
   try{
     let xml;
     if(/\.mxl$/i.test(file.name)){
@@ -1139,7 +1190,7 @@ async function loadScore(file){
       xml=await zip.file(path).async('string');
     } else xml = await readTextFile(file);
     const doc=new DOMParser().parseFromString(xml,'application/xml');
-    if(doc.querySelector('parsererror')) throw new Error('MusicXML 형식이 아니에요');
+    if(doc.querySelector('parsererror')) throw new Error(T('MusicXML 형식이 아니에요'));
     const f=doc.querySelector('key > fifths'); const mode=(doc.querySelector('key > mode')||{}).textContent;
     const fifths = f ? Math.max(-7,Math.min(7,parseInt(f.textContent,10)||0)) : 0;
     let k = (mode==='minor'?FIFTHS_MIN:FIFTHS_MAJ)[fifths+7];
@@ -1157,17 +1208,17 @@ async function loadScore(file){
     scoreLoaded=true;
     $('#scoreEmpty').classList.add('hidden');
     $('#sPdfBtn').disabled=false;
-    setStatus('#scoreStatus', `불러왔어요: ${file.name}${f?'':' (조표가 없어 C로 가정)'}`, 'ok');
+    setStatus('#scoreStatus', T('불러왔어요: {0}',file.name)+(f?'':' '+T('(조표가 없어 C로 가정)')), 'ok');
     renderScore();
-  }catch(e){ console.error(e); setStatus('#scoreStatus','악보를 읽지 못했어요: '+(e.message||e),'err'); }
+  }catch(e){ console.error(e); setStatus('#scoreStatus',T('악보를 읽지 못했어요: {0}',e.message||e),'err'); }
   finally{ busy(false); }
 }
 function renderScore(){
   sOrig.value=ss.orig; sTgt.value=ss.target;
   const n=scoreShift();
-  $('#sShiftVal').textContent = n===0?'원키':(n>0?'+':'')+n+' 반음';
+  $('#sShiftVal').textContent = n===0?T('원키'):T('{0} 반음',(n>0?'+':'')+n);
   if(!osmd||!scoreLoaded) return;
-  busy(true,'악보 다시 그리는 중…');
+  busy(true,T('악보 다시 그리는 중…'));
   setTimeout(()=>{
     try{
       osmd.Sheet.Transpose = n;
@@ -1175,8 +1226,8 @@ function renderScore(){
       osmd.render();
       fitScore();
       const pages=$$('#scoreBox svg').length;
-      $('#scoreInfo').innerHTML = `<b>${esc(ss.name)}</b> · <b>${ss.orig}</b> → <b>${ss.target}</b> (${n===0?'원키':(n>0?'+':'')+n+' 반음'}) · ${pages}페이지`;
-    }catch(e){ console.error(e); setStatus('#scoreStatus','악보를 그리지 못했어요: '+(e.message||e),'err'); }
+      $('#scoreInfo').innerHTML = `<b>${esc(ss.name)}</b> · <b>${ss.orig}</b> → <b>${ss.target}</b> (${n===0?T('원키'):T('{0} 반음',(n>0?'+':'')+n)}) · ${T('{0}페이지',pages)}`;
+    }catch(e){ console.error(e); setStatus('#scoreStatus',T('악보를 그리지 못했어요: {0}',e.message||e),'err'); }
     finally{ busy(false); }
   }, 30);
 }
@@ -1184,7 +1235,7 @@ function fitScore(){ fitScale('#scoreStage', $('#scoreScaler'), 900); }
 sOrig.addEventListener('change', ()=>{ const keep=((parseKey(ss.target).pc-parseKey(ss.orig).pc)%12+12)%12; ss.orig=sOrig.value; const o=parseKey(ss.orig); ss.target=keyName(o.pc+keep,o.minor); renderScore(); });
 sTgt.addEventListener('change', ()=>{ const o=parseKey(ss.orig), t=parseKey(sTgt.value);
   ss.target = (o.minor===t.minor) ? sTgt.value : (o.minor ? keyName(t.pc+9,true) : keyName(t.pc+3,false));
-  if(ss.target!==sTgt.value) toast(`원래 키가 ${o.minor?'단조':'장조'}라서 ${ss.target}(으)로 맞췄어요.`);
+  if(ss.target!==sTgt.value) toast(o.minor?T('원래 키가 단조라서 {0}(으)로 맞췄어요.',ss.target):T('원래 키가 장조라서 {0}(으)로 맞췄어요.',ss.target));
   renderScore(); });
 function sStep(d){ const t=parseKey(ss.target); ss.target=keyName(t.pc+d,t.minor); if(ss.dir==='near'){ /* 방향 유지 */ } renderScore(); }
 $('#sUp').onclick=()=>sStep(1); $('#sDown').onclick=()=>sStep(-1);
@@ -1193,12 +1244,12 @@ $('#dirChips').addEventListener('click', e=>{ const c=e.target.closest('.chip');
 
 $('#sPdfBtn').onclick = async ()=>{
   const svgs=$$('#scoreBox svg'); if(!svgs.length) return;
-  if(!window.jspdf) return toast('PDF 모듈을 불러오지 못했어요.');
-  busy(true,'PDF 만드는 중…');
+  if(!window.jspdf) return toast(T('PDF 모듈을 불러오지 못했어요.'));
+  busy(true,T('PDF 만드는 중…'));
   try{
     const pdf=new jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});
     for(let i=0;i<svgs.length;i++){
-      $('#busyMsg').textContent=`PDF 만드는 중… ${i+1}/${svgs.length}`;
+      $('#busyMsg').textContent=T('PDF 만드는 중… {0}/{1}',i+1,svgs.length);
       const svg=svgs[i];
       const w = parseFloat(svg.getAttribute('width')) || svg.getBoundingClientRect().width;
       const h = parseFloat(svg.getAttribute('height')) || svg.getBoundingClientRect().height;
@@ -1207,7 +1258,7 @@ $('#sPdfBtn').onclick = async ()=>{
       clone.setAttribute('width',w); clone.setAttribute('height',h);
       const src=new XMLSerializer().serializeToString(clone);
       const url=URL.createObjectURL(new Blob([src],{type:'image/svg+xml'}));
-      const img=await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('SVG 변환 실패')); im.src=url; });
+      const img=await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error(T('SVG 변환 실패'))); im.src=url; });
       const scale=3, c=document.createElement('canvas'); c.width=Math.round(w*scale); c.height=Math.round(h*scale);
       const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0,c.width,c.height);
       URL.revokeObjectURL(url);
@@ -1218,7 +1269,7 @@ $('#sPdfBtn').onclick = async ()=>{
     const blob=pdf.output('blob');
     busy(false);
     await saveFile(`${ss.name.replace(/[\\/:*?"<>|]/g,'_')} (${ss.target}).pdf`, blob);
-  }catch(e){ console.error(e); busy(false); toast('PDF를 만들지 못했어요: '+(e.message||e)); }
+  }catch(e){ console.error(e); busy(false); toast(T('PDF를 만들지 못했어요: {0}',e.message||e)); }
 };
 
 /* PDF·사진 악보 변환 안내 */
@@ -1232,7 +1283,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeOmrGuide(); 
 
 /* 시작 */
 if(NATIVE){ $('.logo').removeAttribute('href'); }
-try{ const l=localStorage.getItem('kc-ocr-lang'); if(l) $('#ocrLang').value=l; }catch(e){}
+try{ const l=localStorage.getItem('kc-ocr-lang'); $('#ocrLang').value = l || ({ja:'jpn',en:'eng'}[I18N.lang]||'kor'); }catch(e){}
 $('#ocrLang').addEventListener('change',()=>{ try{ localStorage.setItem('kc-ocr-lang',$('#ocrLang').value); }catch(e){} });
 if('serviceWorker' in navigator && location.protocol==='https:' && !NATIVE){ navigator.serviceWorker.register('../sw.js').catch(()=>{}); }
 $('#fsVal').textContent=st.fs+'px';
