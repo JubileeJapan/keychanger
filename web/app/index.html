@@ -87,6 +87,10 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
 .body pre.l{color:#111}
 .body .s{font-family:"Noto Sans KR",sans-serif;font-weight:700;font-size:.85em;color:#fff;background:#3a3631;display:inline-block;padding:2px 8px;border-radius:4px;margin:10px 0 6px}
 .body .gap{height:.9em}
+.body .ed{cursor:text;border-radius:3px;transition:background .15s, box-shadow .15s}
+.body .ed:hover{background:#fff5ec;box-shadow:0 0 0 3px #fff5ec}
+.body .ed.editing{background:#fff;box-shadow:0 0 0 2px var(--accent);outline:none}
+.edit-hint{font-size:12px;color:var(--muted);margin:-6px 0 12px}
 .empty{color:var(--muted);text-align:center;padding:80px 20px;border:1.5px dashed var(--line);border-radius:var(--radius);background:#fff}
 #scoreBox{background:#fff;width:900px}
 #scoreBox svg{display:block;margin:0 auto 22px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
@@ -206,6 +210,7 @@ textarea{width:100%;min-height:260px;resize:vertical;font-family:"Nanum Gothic C
       <button class="btn" id="txtBtn">.txt 저장</button>
       <button class="btn primary" id="pdfBtn">PDF 저장</button>
     </div>
+    <p class="edit-hint" id="editHint">✏️ 악보의 줄을 누르면 바로 고칠 수 있어요. 코드는 지금 보이는 키 그대로 고치면 돼요. (Enter: 저장 · Esc: 취소 · 내용을 다 지우고 Enter: 줄 삭제)</p>
     <div class="stage" id="chordStage"><div class="scaler" id="chordScaler"></div></div>
   </section>
 </main>
@@ -488,36 +493,39 @@ function parseSheet(text){
   const shiftDisp = ((parseKey(displayKey()).pc - parseKey(st.orig).pc)%12+12)%12;
   const arr = spellArr(displayKey(), st.spell);
   const items=[];
-  for(let raw of text.replace(/\r/g,'').split('\n')){
-    raw = raw.replace(/\t/g,'    ').replace(/\s+$/,'');
+  const srcLines=text.replace(/\r/g,'').split('\n');
+  for(let li=0; li<srcLines.length; li++){
+    let raw = srcLines[li].replace(/\t/g,'    ').replace(/\s+$/,'');
+    const push=(it,kind)=>items.push(Object.assign(it,{src:li, kind:kind||'plain'}));
     const dm=/^\s*\{\s*([a-zA-Z_]+)\s*(?::\s*(.*?))?\s*\}\s*$/.exec(raw);
     if(dm){
       const d=dm[1].toLowerCase(), v=dm[2]||'';
       if(d==='title'||d==='t') meta.title=v;
       else if(d==='artist'||d==='subtitle'||d==='st'||d==='composer') meta.artist = meta.artist||v;
       else if(d==='key') meta.key=v;
-      else if(['comment','c','ci','cb','comment_italic','comment_box','start_of_part','sop'].includes(d) && v) items.push({t:'s', s:v});
-      else if(['start_of_chorus','soc'].includes(d)) items.push({t:'s', s:v||'Chorus'});
-      else if(['start_of_verse','sov'].includes(d)) items.push({t:'s', s:v||'Verse'});
-      else if(['start_of_bridge','sob'].includes(d)) items.push({t:'s', s:v||'Bridge'});
+      else if(['comment','c','ci','cb','comment_italic','comment_box','start_of_part','sop'].includes(d) && v) push({t:'s', s:v},'dir');
+      else if(['start_of_chorus','soc'].includes(d)) push({t:'s', s:v||'Chorus'},'dir');
+      else if(['start_of_verse','sov'].includes(d)) push({t:'s', s:v||'Verse'},'dir');
+      else if(['start_of_bridge','sob'].includes(d)) push({t:'s', s:v||'Bridge'},'dir');
       continue;
     }
     if(!raw.trim()){ items.push({t:'gap'}); continue; }
     if(!meta.key){ const km=/(?:\bKey|キー|키)\s*[:：]?\s*([A-G][#b♯♭]?m?)(?![a-z])/i.exec(raw); if(km) meta.key=km[1]; }
     if(hasInlineChord(raw)){
       const [c,l]=inlineToTwoLines(raw, shiftDisp, arr);
-      if(c.trim()) items.push({t:'c', s:c});
-      if(l.trim()) items.push({t:'l', s:l});
+      if(c.trim()) push({t:'c', s:c, pair:l},'inline');
+      if(l.trim()) push({t:'l', s:l, pair:c},'inline');
       continue;
     }
-    if(isChordLine(raw)){ items.push({t:'c', s:trChordLine(raw, shiftDisp, arr)}); continue; }
-    if(SECTION_RE.test(raw)){ items.push({t:'s', s:raw.trim().replace(/^\[|\]$/g,'').replace(/:$/,'')}); continue; }
-    items.push({t:'l', s:raw});
+    if(isChordLine(raw)){ push({t:'c', s:trChordLine(raw, shiftDisp, arr)}); continue; }
+    if(SECTION_RE.test(raw)){ push({t:'s', s:raw.trim().replace(/^\[|\]$/g,'').replace(/:$/,''), bracket:/^\s*\[/.test(raw)}); continue; }
+    push({t:'l', s:raw});
   }
   // 연속 빈 줄 정리
   const clean=[]; for(const it of items){ if(it.t==='gap'&&(!clean.length||clean[clean.length-1].t==='gap')) continue; clean.push(it); }
   while(clean.length&&clean[clean.length-1].t==='gap') clean.pop();
-  return {meta, items:clean};
+  clean.forEach((it,i)=>it.i=i);
+  return {meta, items:clean, shiftDisp};
 }
 
 function blocksOf(items){
@@ -536,9 +544,9 @@ function blocksOf(items){
 }
 function blockHTML(b){
   return '<div class="blk">'+b.map(it=>{
-    if(it.t==='c') return `<pre class="c">${esc(it.s)}</pre>`;
-    if(it.t==='l') return `<pre class="l">${esc(it.s)}</pre>`;
-    if(it.t==='s') return `<div class="s">${esc(it.s)}</div>`;
+    if(it.t==='c') return `<pre class="c ed" data-i="${it.i}">${esc(it.s)}</pre>`;
+    if(it.t==='l') return `<pre class="l ed" data-i="${it.i}">${esc(it.s)}</pre>`;
+    if(it.t==='s') return `<div class="s ed" data-i="${it.i}">${esc(it.s)}</div>`;
     return '<div class="gap"></div>';
   }).join('')+'</div>';
 }
@@ -628,6 +636,57 @@ function transposedText(){
   const body = lastParsed.items.map(it=> it.t==='gap' ? '' : it.t==='s' ? `[${it.s}]` : it.s).join('\n');
   return head+'\n\n'+body+'\n';
 }
+
+/* ===== 미리보기에서 바로 고치기 ===== */
+// 고친 줄을 원래 입력(원래 키)으로 되돌려 써 넣는다
+function applyEdit(it, newText){
+  const lines=$('#src').value.replace(/\r/g,'').split('\n');
+  const back=(12-lastParsed.shiftDisp)%12;                 // 보이는 키 → 원래 키
+  const origArr=spellArr(st.orig, 'auto');
+  const toOrig=t=> isChordLine(t) ? trChordLine(t, back, origArr) : t;
+  const del = !newText.trim();
+  let repl;
+  if(it.kind==='inline'){
+    // [C]가사 형식의 줄은 「코드 줄 + 가사 줄」 두 줄로 풀어서 저장
+    const chordDisp = it.t==='c' ? newText : (it.pair||'');
+    const lyric = it.t==='l' ? newText : (it.pair||'');
+    repl=[]; if(chordDisp.trim()) repl.push(toOrig(chordDisp)); if(lyric.trim()) repl.push(lyric);
+  } else if(it.kind==='dir'){
+    repl = del ? [] : [`{comment: ${newText.trim()}}`];
+  } else if(it.t==='s'){
+    repl = del ? [] : [it.bracket ? `[${newText.trim()}]` : newText.trim()];
+  } else if(it.t==='c'){
+    repl = del ? [] : [toOrig(newText.replace(/\s+$/,''))];
+  } else {
+    repl = del ? [] : [newText.replace(/\s+$/,'')];
+  }
+  lines.splice(it.src, 1, ...repl);
+  st.origManual=true;   // 고친 뒤에도 원래 키가 바뀌지 않게
+  $('#src').value=lines.join('\n');
+  renderChord();
+}
+$('#chordScaler').addEventListener('click', e=>{
+  const el=e.target.closest('.ed'); if(!el || el.classList.contains('editing')) return;
+  const it=lastParsed && lastParsed.items[+el.dataset.i]; if(!it) return;
+  const before=el.textContent;
+  el.classList.add('editing'); el.contentEditable='plaintext-only';
+  if(el.contentEditable!=='plaintext-only') el.contentEditable='true';
+  el.focus();
+  // 누른 위치에 커서 두기
+  try{ const r=document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX,e.clientY) : null; if(r){ const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); } }catch(_){}
+  let done=false;
+  const finish=save=>{
+    if(done) return; done=true;
+    el.contentEditable='false'; el.classList.remove('editing');
+    const now=el.textContent.replace(/\n/g,' ');
+    if(save && now!==before) applyEdit(it, now); else el.textContent=before;
+  };
+  el.addEventListener('keydown', ev=>{
+    if(ev.key==='Enter'){ ev.preventDefault(); finish(true); }
+    else if(ev.key==='Escape'){ ev.preventDefault(); finish(false); }
+  });
+  el.addEventListener('blur', ()=>finish(true), {once:true});
+});
 
 /* 이벤트 */
 let rT; const rerender=()=>{ clearTimeout(rT); rT=setTimeout(renderChord, 120); };
