@@ -59,6 +59,12 @@ h2.sec{font-size:15px;margin:26px 0 10px}
 .chip small{color:var(--muted);font-weight:400}
 .lv{font-size:11px;color:#fff;background:#9aa0ad;border-radius:999px;padding:1px 7px}
 .lv.l1{background:#16a34a}.lv.l2{background:#f59e0b}.lv.l3{background:#dc2626}
+.gen label{display:inline-flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);margin:0 10px 10px 0}
+.gen select{border:1px solid var(--line);border-radius:8px;padding:7px 8px;background:#fff;font-size:14px;color:var(--ink);min-width:110px}
+.gtabs{display:inline-flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;margin-bottom:12px}
+.gtabs button{border:0;background:transparent;padding:7px 14px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:500}
+.gtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.gdesc{font-size:12px;color:var(--muted);margin:2px 0 0;line-height:1.6}
 /* 진행 */
 .busy{position:fixed;inset:0;background:rgba(246,244,239,.85);display:none;place-items:center;z-index:50}
 .busy.show{display:grid}
@@ -134,6 +140,33 @@ h2.sec{font-size:15px;margin:26px 0 10px}
       <div id="installHow" style="color:var(--muted);font-size:13px;margin-top:2px">아이폰·아이패드: Safari 공유 버튼(□↑) → 「홈 화면에 추가」 · 안드로이드: Chrome 메뉴(⋮) → 「앱 설치」</div>
     </div>
     <button class="btn primary" id="installBtn" style="display:none">📲 앱으로 설치</button>
+  </div>
+
+  <h2 class="sec">🎼 코드 · 반주 · 스케일 연습 <span style="font-weight:400;color:var(--muted);font-size:12px">— 키와 종류를 고르면 연습곡을 만들어 줘요</span></h2>
+  <div class="card gen">
+    <div class="gtabs" id="gtabs"><button data-g="chord" class="on">코드</button><button data-g="acc">반주 패턴</button><button data-g="scale">스케일</button></div>
+    <div class="gpane" data-g="chord">
+      <label>근음 <select id="cRoot"></select></label>
+      <label>코드 종류 <select id="cType"></select></label>
+      <label>빠르기 <select class="gBpm"><option value="60">느리게</option><option value="80" selected>보통</option><option value="100">빠르게</option></select></label>
+      <p class="gdesc">근음 위치 → 아르페지오(올라갔다 내려오기) → 자리바꿈(전위) 순서로 연습해요. 왼손은 근음을 쳐요.</p>
+    </div>
+    <div class="gpane hidden" data-g="acc">
+      <label>키 <select id="aKey"></select></label>
+      <label>코드 진행 <select id="aProg"></select></label>
+      <label>반주 패턴 <select id="aPat"></select></label>
+      <label>빠르기 <select class="gBpm"><option value="60">느리게</option><option value="80" selected>보통</option><option value="100">빠르게</option></select></label>
+      <p class="gdesc">찬양 반주에서 자주 쓰는 진행이에요. 화면 왼쪽에 지금 칠 코드 이름이 함께 떨어져요.</p>
+    </div>
+    <div class="gpane hidden" data-g="scale">
+      <label>키 <select id="sKey"></select></label>
+      <label>스케일 <select id="sType"></select></label>
+      <label>옥타브 <select id="sOct"><option value="1">1옥타브</option><option value="2">2옥타브</option></select></label>
+      <label>손 <select id="sHands"><option value="R">오른손</option><option value="RL">양손</option></select></label>
+      <label>빠르기 <select class="gBpm"><option value="60">느리게</option><option value="80" selected>보통</option><option value="100">빠르게</option></select></label>
+      <p class="gdesc">올라갔다 내려와요. 「양손」은 왼손이 한 옥타브 아래에서 같이 쳐요.</p>
+    </div>
+    <div style="margin-top:12px"><button class="btn primary" id="genGo">▶ 연습 시작</button></div>
   </div>
 
   <h2 class="sec">샘플 곡 <span style="font-weight:400;color:var(--muted);font-size:12px">— 눌러서 바로 연습해요</span></h2>
@@ -430,6 +463,122 @@ function renderSamples(){
 }
 $('#samples').addEventListener('click', e=>{ const b=e.target.closest('[data-sample]'); if(b) openSong(sampleSong(SAMPLES[+b.dataset.sample]), null); });
 
+/* ======================= 코드 · 반주 · 스케일 연습 만들기 ======================= */
+const PCN_SHARP=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const PCN_FLAT =['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const FLATKEYS=new Set([1,3,5,8,10]);   // Db Eb F Ab Bb 키는 ♭로
+const keyName=pc=>(FLATKEYS.has(pc)?PCN_FLAT:PCN_SHARP)[pc];
+const CHORD_TYPES=[ // [표시, 기호, 구성음(반음)]
+  ['메이저','',[0,4,7]], ['마이너','m',[0,3,7]], ['세븐 (7)','7',[0,4,7,10]], ['메이저 세븐 (maj7)','maj7',[0,4,7,11]],
+  ['마이너 세븐 (m7)','m7',[0,3,7,10]], ['서스포 (sus4)','sus4',[0,5,7]], ['서스투 (sus2)','sus2',[0,2,7]], ['식스 (6)','6',[0,4,7,9]],
+  ['마이너 식스 (m6)','m6',[0,3,7,9]], ['애드나인 (add9)','add9',[0,4,7,14]], ['디미니시 (dim)','dim',[0,3,6]], ['디미니시 세븐 (dim7)','dim7',[0,3,6,9]],
+  ['하프 디미니시 (m7♭5)','m7b5',[0,3,6,10]], ['오그먼트 (aug)','aug',[0,4,8]] ];
+const DEG={I:[0,''],ii:[2,'m'],iii:[4,'m'],IV:[5,''],V:[7,''],vi:[9,'m'],V7:[7,'7'],ii7:[2,'m7'],Imaj7:[0,'maj7'],IVmaj7:[5,'maj7'],vi7:[9,'m7'],'V/vi':[4,''] };
+const PROGS=[ ['I – V – vi – IV',['I','V','vi','IV']], ['I – IV – V – I',['I','IV','V','I']], ['I – vi – IV – V',['I','vi','IV','V']],
+  ['vi – IV – I – V',['vi','IV','I','V']], ['I – iii – IV – V',['I','iii','IV','V']], ['IV – V – iii – vi (찬양)',['IV','V','iii','vi']],
+  ['ii7 – V7 – Imaj7',['ii7','V7','Imaj7','Imaj7']], ['I – V/vi – vi – IV',['I','V/vi','vi','IV']] ];
+const PATTERNS=[ ['블록 코드 (온음표)','block'], ['쿵짝 (단순 리듬)','kung'], ['8비트','8beat'], ['아르페지오 (왼손 분산)','arp'], ['3박 왈츠 (쿵짝짝)','waltz'] ];
+const SCALES=[ ['메이저 (장음계)',[0,2,4,5,7,9,11]], ['내추럴 마이너',[0,2,3,5,7,8,10]], ['하모닉 마이너',[0,2,3,5,7,8,11]],
+  ['메이저 펜타토닉',[0,2,4,7,9]], ['마이너 펜타토닉',[0,3,5,7,10]] ];
+const qualIvs={'':[0,4,7],m:[0,3,7],'7':[0,4,7,10],maj7:[0,4,7,11],m7:[0,3,7,10],dim:[0,3,6]};
+
+// 오른손 코드를 가운데(미~솔 근처)에 오도록 자리바꿈을 골라 쌓는다
+function voice(rootPc, ivs, center=65){
+  const tones=[...new Set(ivs.map(i=>i%12))];
+  let best=null;
+  for(let inv=0; inv<tones.length; inv++){
+    for(let oct=3; oct<=5; oct++){
+      const notes=[]; let prev=-1;
+      for(let k=0;k<tones.length;k++){ let p=12*(oct+1)+((rootPc+tones[(inv+k)%tones.length])%12); while(p<=prev) p+=12; notes.push(p); prev=p; }
+      if(notes[0]<53 || notes[notes.length-1]>79) continue;
+      const c=notes.reduce((a,b)=>a+b,0)/notes.length, d=Math.abs(c-center);
+      if(!best||d<best.d) best={d,notes};
+    }
+  }
+  return best?best.notes:tones.map(t=>60+((rootPc+t)%12));
+}
+const bassOf=pc=>36+((pc-4+12)%12)+4;   // 왼손 근음: E2~D#3 사이
+function mkSong(title, items, bpm, marks, beats){
+  const spb=60/bpm;
+  const notes=items.map(n=>({t:+(n.b*spb).toFixed(3), d:+Math.max(0.12,n.l*spb*0.95).toFixed(3), p:n.p, v:0.8, forceHand:n.h}));
+  notes.sort((a,b)=>a.t-b.t||b.p-a.p);
+  return { id:'gen-'+Date.now(), title, created:Date.now(), duration:beats*spb+1.5, notes, audio:null, offset:0, sample:true, keepAll:true,
+           marks:(marks||[]).map(m=>({t:+(m.b*spb).toFixed(3), text:m.text})) };
+}
+function genChord(rootPc, ti, bpm){
+  const [label, sym, ivs]=CHORD_TYPES[ti]; const name=keyName(rootPc)+sym;
+  const items=[], marks=[]; let b=0;
+  const root=[]; { let prev=-1; for(const iv of ivs){ let p=60+rootPc+iv; if(rootPc>=7) p-=12; while(p<=prev) p+=12; root.push(p); prev=p; } }
+  const L=p=>({h:'L'}), bass=bassOf(rootPc);
+  // 1) 근음 위치 블록 ×2
+  marks.push({b, text:name});
+  for(let r=0;r<2;r++){ root.forEach(p=>items.push({b,l:2,p,h:'R'})); items.push({b,l:2,p:bass,h:'L'}); b+=2; }
+  // 2) 아르페지오 올라갔다 내려오기 (8분음표)
+  marks.push({b, text:name+' arp.'});
+  const up=[...root, root[0]+12], arp=[...up, ...up.slice(0,-1).reverse()];
+  arp.forEach(p=>{ items.push({b,l:0.5,p,h:'R'}); b+=0.5; });
+  items.push({b:b-arp.length*0.5,l:arp.length*0.5,p:bass,h:'L'});
+  b=Math.ceil(b/2)*2;
+  // 3) 자리바꿈 (전위)
+  let inv=[...root];
+  for(let i=1;i<root.length;i++){
+    inv=[...inv.slice(1), inv[0]+12];
+    marks.push({b, text:`${name} (${i})`});
+    inv.forEach(p=>items.push({b,l:2,p,h:'R'})); items.push({b,l:2,p:bass,h:'L'}); b+=2;
+  }
+  marks.push({b, text:name});
+  root.forEach(p=>items.push({b,l:4,p,h:'R'})); items.push({b,l:4,p:bass,h:'L'}); b+=4;
+  return mkSong(`${T('코드')}: ${name} (${T(label)})`, items, bpm, marks, b);
+}
+function genAcc(keyPc, pi, pat, bpm){
+  const [plabel, degs]=PROGS[pi]; const items=[], marks=[]; let b=0;
+  const meter = pat==='waltz'?3:4;
+  for(let rep=0; rep<2; rep++){
+    for(const dg of degs){
+      const [off, q]=DEG[dg]; const rpc=(keyPc+off)%12; const name=keyName(rpc)+q;
+      const ch=voice(rpc, qualIvs[q]||[0,4,7]); const bass=bassOf(rpc);
+      marks.push({b, text:name});
+      if(pat==='block'){ ch.forEach(p=>items.push({b,l:4,p,h:'R'})); items.push({b,l:4,p:bass,h:'L'}); }
+      else if(pat==='kung'){ items.push({b,l:1,p:bass,h:'L'}); ch.forEach(p=>items.push({b:b+1,l:1,p,h:'R'})); items.push({b:b+2,l:1,p:bass+7,h:'L'}); ch.forEach(p=>items.push({b:b+3,l:1,p,h:'R'})); }
+      else if(pat==='8beat'){ items.push({b,l:2,p:bass,h:'L'}); items.push({b:b+2,l:2,p:bass,h:'L'}); for(let i=0;i<8;i++) ch.forEach(p=>items.push({b:b+i*0.5,l:0.5,p,h:'R'})); }
+      else if(pat==='arp'){ const third=(qualIvs[q]||[0,4,7])[1]; const seq=[bass,bass+7,bass+12,bass+12+third,bass+12,bass+7,bass+12,bass+7]; seq.forEach((p,i)=>items.push({b:b+i*0.5,l:0.5,p,h:'L'})); ch.forEach(p=>items.push({b,l:4,p,h:'R'})); }
+      else if(pat==='waltz'){ items.push({b,l:1,p:bass,h:'L'}); ch.forEach(p=>{ items.push({b:b+1,l:1,p,h:'R'}); items.push({b:b+2,l:1,p,h:'R'}); }); }
+      b+=meter;
+    }
+  }
+  return mkSong(`${T('반주')}: ${keyName(keyPc)} ${T('키')} ${plabel.replace(' (찬양)','')} · ${T(PATTERNS.find(x=>x[1]===pat)[0])}`, items, bpm, marks, b);
+}
+function genScale(keyPc, si, octs, hands, bpm){
+  const [label, ivs]=SCALES[si]; const start=60+keyPc-(keyPc>=7?12:0);
+  const upN=[]; for(let o=0;o<octs;o++) ivs.forEach(i=>upN.push(start+12*o+i)); upN.push(start+12*octs);
+  const seq=[...upN, ...upN.slice(0,-1).reverse()];
+  const items=[]; let b=0;
+  seq.forEach((p,i)=>{ const last=i===seq.length-1; const l=last?2:1; items.push({b,l,p,h:'R'}); if(hands==='RL') items.push({b,l,p:p-12,h:'L'}); b+=l; });
+  return mkSong(`${T('스케일')}: ${keyName(keyPc)} ${T(label)}`, items, bpm, [{b:0,text:keyName(keyPc)+' '+T(label)}], b);
+}
+function fillGen(){
+  const keyOpts=[0,7,2,9,4,11,5,10,3,8,1,6].map(pc=>`<option value="${pc}">${keyName(pc)}</option>`).join('');
+  $('#cRoot').innerHTML=PCN_SHARP.map((n,pc)=>`<option value="${pc}">${FLATKEYS.has(pc)?PCN_SHARP[pc]+'/'+PCN_FLAT[pc]:n}</option>`).join('');
+  $('#cType').innerHTML=CHORD_TYPES.map((c,i)=>`<option value="${i}">${esc(T(c[0]))}</option>`).join('');
+  $('#aKey').innerHTML=keyOpts; $('#sKey').innerHTML=keyOpts;
+  $('#aProg').innerHTML=PROGS.map((x,i)=>`<option value="${i}">${esc(T(x[0]))}</option>`).join('');
+  $('#aPat').innerHTML=PATTERNS.map(x=>`<option value="${x[1]}">${esc(T(x[0]))}</option>`).join('');
+  $('#sType').innerHTML=SCALES.map((x,i)=>`<option value="${i}">${esc(T(x[0]))}</option>`).join('');
+}
+let genTab='chord';
+$('#gtabs').addEventListener('click', e=>{ const bt=e.target.closest('button'); if(!bt) return; genTab=bt.dataset.g; $$('#gtabs button').forEach(x=>x.classList.toggle('on',x===bt)); $$('.gpane').forEach(pn=>pn.classList.toggle('hidden', pn.dataset.g!==genTab)); });
+$('#genGo').onclick=()=>{
+  const pane=$(`.gpane[data-g="${genTab}"]`), bpm=+pane.querySelector('.gBpm').value;
+  let song;
+  if(genTab==='chord') song=genChord(+$('#cRoot').value, +$('#cType').value, bpm);
+  else if(genTab==='acc') song=genAcc(+$('#aKey').value, +$('#aProg').value, $('#aPat').value, bpm);
+  else song=genScale(+$('#sKey').value, +$('#sType').value, +$('#sOct').value, $('#sHands').value, bpm);
+  cur.hand = 'both'; $$('#handSeg button').forEach(x=>x.classList.toggle('on', x.dataset.v==='both'));
+  if(genTab==='scale' && $('#sHands').value==='R'){ cur.hand='melody'; $$('#handSeg button').forEach(x=>x.classList.toggle('on', x.dataset.v==='melody')); }
+  openSong(song, null);
+};
+fillGen();
+
 /* ======================= 악보(MusicXML) → 음표 ======================= */
 async function importMusicXml(f, name){
   busy(true,T('악보 읽는 중…'), f.name);
@@ -562,7 +711,9 @@ function openSong(song, rawData){
 }
 function prepare(){
   const base=cur.song.notes;
-  const ns=(cur.hand==='melody'?pickMelody(base):pickBoth(base)).map(n=>({...n, hit:false, miss:false}));
+  const ns=(cur.song.keepAll
+      ? (cur.hand==='melody' ? base.filter(n=>n.forceHand!=='L') : base).map(n=>({...n, hand:n.forceHand||'R'}))   // 코드·반주·스케일: 화음 그대로
+      : (cur.hand==='melody'?pickMelody(base):pickBoth(base))).map(n=>({...n, hit:false, miss:false}));
   // 타일 모드: 멜로디만, 음 높낮이의 흐름에 따라 4줄로
   if(cur.mode==='tiles'){
     const mel=pickMelody(base); let lane=1, prev=null; const tiles=[];
@@ -722,6 +873,14 @@ function draw(){
     roundRect(x+pad, y0, w-pad*2, Math.max(8,y1-y0), 5); g.fill();
     if(nameStyle!=='off' && y1-y0>14 && w>16){ g.fillStyle='rgba(0,0,0,.55)'; g.font=`700 ${Math.min(13,w*0.45)}px "Noto Sans KR",sans-serif`; g.textAlign='center'; g.fillText(NAMES_KO[n.p%12].replace('#','♯'), x+w/2, y1-5); }
   }
+  // 코드 이름 (반주·코드 연습)
+  if(cur.song.marks){
+    g.textAlign='left'; g.font='900 20px "Noto Sans KR",sans-serif';
+    for(const m of cur.song.marks){ const y=hitY-(m.t-t)*pps; if(y<20||y>hitY+30) continue;
+      const tw=g.measureText(m.text).width; g.fillStyle='rgba(20,22,28,.75)'; roundRect(6,y-24,tw+16,28,6); g.fill();
+      g.fillStyle= y>hitY-6 ? '#ffd166' : '#fff'; g.fillText(m.text, 14, y-4);
+      g.strokeStyle='rgba(255,209,102,.35)'; g.lineWidth=1; g.beginPath(); g.moveTo(tw+24,y); g.lineTo(W,y); g.stroke(); }
+  }
   // 판정선
   g.fillStyle='rgba(255,178,122,.9)'; g.fillRect(0,hitY-2,W,3);
   // 기다리는 중 안내
@@ -744,6 +903,7 @@ function drawKey(k, now, active){
     g.font=`700 ${Math.min(15,k.w*0.48)}px sans-serif`;
     g.fillText(LETTERS[pc], k.x+k.w/2, k.y+k.h-(isC?16:9));
     if(isC){ g.font=`${Math.min(10,k.w*0.34)}px sans-serif`; g.fillText(String(Math.floor(k.p/12)-1), k.x+k.w/2, k.y+k.h-5); }
+    if(nameStyle==='solfa'){ g.fillStyle='#8a8f9c'; g.font=`${Math.min(11,k.w*0.36)}px "Noto Sans KR",sans-serif`; g.fillText(SOLFA[pc], k.x+k.w/2, k.y+k.h-(isC?32:26)); }
     // PC 키보드 단축키는 위쪽에 작게
     const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#b8a99a'; g.font=`${Math.min(11,k.w*0.36)}px sans-serif`; g.fillText(lab, k.x+k.w/2, k.y+k.h*0.72); }
   } else { const lab=keyLabel(k.p); if(lab && showKeyLabels){ g.fillStyle='#ffb27a'; g.font=`${Math.min(11,k.w*0.5)}px sans-serif`; g.textAlign='center'; g.fillText(lab,k.x+k.w/2,k.y+k.h-8); } }
