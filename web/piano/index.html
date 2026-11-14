@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="vendor/bp.bundle.js"></script>
+<script src="../app/vendor/jszip.min.js"></script>
 <style>
 :root{--bg:#f6f4ef;--panel:#fff;--ink:#1d1b18;--muted:#6f6a62;--line:#e4dfd5;--accent:#c2410c;--soft:#fdeee4;--rh:#f08a3c;--lh:#4f8fd8;--good:#16a34a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -47,6 +48,13 @@ h2.sec{font-size:15px;margin:26px 0 10px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
 .steps div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;color:var(--muted);line-height:1.6}
 .steps b{color:var(--ink);display:block;margin-bottom:2px}
+.cat{font-size:12px;color:var(--muted);margin:14px 0 6px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.chip:hover{border-color:var(--accent);background:var(--soft)}
+.chip small{color:var(--muted);font-weight:400}
+.lv{font-size:11px;color:#fff;background:#9aa0ad;border-radius:999px;padding:1px 7px}
+.lv.l1{background:#16a34a}.lv.l2{background:#f59e0b}.lv.l3{background:#dc2626}
 /* 진행 */
 .busy{position:fixed;inset:0;background:rgba(246,244,239,.85);display:none;place-items:center;z-index:50}
 .busy.show{display:grid}
@@ -101,18 +109,21 @@ h2.sec{font-size:15px;margin:26px 0 10px}
     </div>
     <div>
       <div class="drop" id="drop">
-        <b>🎵 MR·녹음 파일 올리기</b>
-        <small>mp3 · m4a · wav · (MIDI 파일 · 연습 파일 .json도 가능)</small>
+        <b>🎵 MR·악보 파일 올리기</b>
+        <small>MR(mp3 · m4a · wav) · 악보(MusicXML) · MIDI · 연습 파일(.json)</small>
       </div>
-      <input type="file" id="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.mid,.midi,.json" hidden>
+      <input type="file" id="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.mid,.midi,.json,.musicxml,.xml,.mxl,.pdf,image/*" hidden>
     </div>
   </div>
 
   <div class="steps">
-    <div><b>1. 올리기</b>MR을 올리면 1~3분 정도 음을 찾아요. 한 번 바꾼 곡은 이 기기에 저장돼요.</div>
+    <div><b>1. 올리기</b>MR을 올리면 음을 자동으로 찾아요. <b>악보(MusicXML)·MIDI</b>는 더 정확하고 바로 열려요. 아래 샘플 곡으로 바로 시작해도 돼요.</div>
     <div><b>2. 연습하기</b>「건반」은 실제 피아노 자리 연습, 「타일」은 박자 게임이에요. 속도를 줄여서 시작해 보세요.</div>
     <div><b>3. 나눠 주기</b>「연습 파일 저장」으로 받은 파일을 아이들에게 보내면, 아이들은 변환 없이 바로 열어요.</div>
   </div>
+
+  <h2 class="sec">샘플 곡 <span style="font-weight:400;color:var(--muted);font-size:12px">— 눌러서 바로 연습해요</span></h2>
+  <div id="samples"></div>
 
   <h2 class="sec">저장된 곡</h2>
   <div id="songs" class="songs"></div>
@@ -166,6 +177,22 @@ h2.sec{font-size:15px;margin:26px 0 10px}
   </div>
   <div id="midiStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
   <div style="text-align:right;margin-top:14px"><button class="btn sm primary" id="moreClose">닫기</button></div>
+</div></div>
+
+<div class="busy" id="guide"><div class="card" style="text-align:left;max-width:560px">
+  <b style="font-size:16px">PDF·사진 악보를 피아노 연습으로 바꾸기</b>
+  <p id="guideLead" style="color:var(--muted);font-size:13px;line-height:1.6;margin:8px 0 12px"></p>
+  <ol style="font-size:13px;line-height:1.8;padding-left:20px;margin:0 0 12px">
+    <li><b>PlayScore 2</b>(휴대폰 앱)로 악보를 찍거나 PDF를 불러와서 <b>MusicXML</b>로 내보내요. (Professional 구독 필요)</li>
+    <li>또는 <b>MuseScore</b>(PC, 무료)의 PDF 변환 페이지에 올린 뒤, MuseScore로 열어 「내보내기 → MusicXML」로 저장해요.</li>
+    <li>저장한 MusicXML 파일을 여기에 올리면 바로 건반·타일 연습이 돼요. MIDI 파일도 돼요.</li>
+  </ol>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="btn sm" href="https://www.playscore.co/" target="_blank" rel="noopener">PlayScore 2</a>
+    <a class="btn sm" href="https://musescore.com/import" target="_blank" rel="noopener">MuseScore PDF 변환</a>
+    <span style="flex:1"></span>
+    <button class="btn sm primary" onclick="document.getElementById('guide').classList.remove('show')">닫기</button>
+  </div>
 </div></div>
 
 <div class="busy" id="busy"><div class="card">
@@ -223,6 +250,8 @@ async function handleFile(f){
   try{
     if(/\.json$/i.test(f.name)) return importPractice(f);
     if(/\.midi?$/i.test(f.name)) return importMidi(f, name);
+    if(/\.(musicxml|xml|mxl)$/i.test(f.name)) return importMusicXml(f, name);
+    if(/\.pdf$/i.test(f.name) || /^image\//.test(f.type)) return showScoreGuide(f.name);
     await transcribe(f, name);
   }catch(e){ console.error(e); busy(false); alert('파일을 처리하지 못했어요: '+(e.message||e)); }
 }
@@ -299,9 +328,139 @@ function exportMidi(){
   download(`${safeName(cur.song.title)}.mid`, new Blob([midi.toArray()],{type:'audio/midi'}));
 }
 
+/* ======================= 샘플 곡 (저작권이 끝난 곡만) ======================= */
+// 표기: 음이름옥타브:박자  (예: C4:1 = 4옥타브 도 한 박, R:1 = 한 박 쉼)
+const SAMPLES=[
+  {cat:'기초 연습', lv:1, title:'다 장조 음계 (도레미파솔라시도)', bpm:80,
+   mel:'C4:1 D4:1 E4:1 F4:1 G4:1 A4:1 B4:1 C5:2 R:1 C5:1 B4:1 A4:1 G4:1 F4:1 E4:1 D4:1 C4:3'},
+  {cat:'기초 연습', lv:1, title:'다섯 손가락 연습 (도~솔)', bpm:84,
+   mel:'C4:1 D4:1 E4:1 F4:1 G4:2 F4:1 E4:1 D4:1 C4:2 R:1 C4:1 E4:1 D4:1 F4:1 E4:1 G4:1 F4:1 E4:1 D4:1 C4:3'},
+  {cat:'기초 연습', lv:2, title:'왼손 오른손 번갈아 (도·솔)', bpm:76,
+   mel:'C4:1 E4:1 G4:1 E4:1 C4:1 E4:1 G4:2 F4:1 A4:1 C5:1 A4:1 G4:1 E4:1 C4:2',
+   bass:'C3:2 G2:2 C3:2 G2:2 F2:2 F2:2 C3:4'},
+  {cat:'동요·명곡', lv:1, title:'작은 별 (반짝반짝)', bpm:96,
+   mel:'C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2',
+   bass:'C3:4 F3:2 C3:2 F3:2 C3:2 G2:2 C3:2 C3:2 F3:2 C3:2 G2:2 C3:2 F3:2 C3:2 G2:2 C3:4 F3:2 C3:2 F3:2 C3:2 G2:2 C3:2'},
+  {cat:'동요·명곡', lv:1, title:'메리의 어린 양', bpm:100,
+   mel:'E4:1 D4:1 C4:1 D4:1 E4:1 E4:1 E4:2 D4:1 D4:1 D4:2 E4:1 G4:1 G4:2 E4:1 D4:1 C4:1 D4:1 E4:1 E4:1 E4:1 E4:1 D4:1 D4:1 E4:1 D4:1 C4:4'},
+  {cat:'동요·명곡', lv:1, title:'나비야 (독일 민요)', bpm:100,
+   mel:'G4:1 E4:1 E4:2 F4:1 D4:1 D4:2 C4:1 D4:1 E4:1 F4:1 G4:1 G4:1 G4:2 G4:1 E4:1 E4:2 F4:1 D4:1 D4:2 C4:1 E4:1 G4:1 G4:1 E4:1 E4:1 E4:2 D4:1 D4:1 D4:1 D4:1 D4:1 E4:1 F4:2 E4:1 E4:1 E4:1 E4:1 E4:1 F4:1 G4:2 G4:1 E4:1 E4:2 F4:1 D4:1 D4:2 C4:1 E4:1 G4:1 G4:1 C4:4',
+   bass:'C3:4 G2:4 C3:4 C3:4 C3:4 G2:4 C3:4 C3:4 G2:4 G2:4 C3:4 C3:4 C3:4 G2:4 C3:4 C3:4'},
+  {cat:'동요·명곡', lv:2, title:'런던 다리', bpm:100,
+   mel:'G4:1.5 A4:0.5 G4:1 F4:1 E4:1 F4:1 G4:2 D4:1 E4:1 F4:2 E4:1 F4:1 G4:2 G4:1.5 A4:0.5 G4:1 F4:1 E4:1 F4:1 G4:2 D4:2 G4:2 E4:1 C4:3'},
+  {cat:'동요·명곡', lv:2, title:'환희의 송가 (베토벤)', bpm:100,
+   mel:'E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 E4:1.5 D4:0.5 D4:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2 D4:1 D4:1 E4:1 C4:1 D4:1 E4:0.5 F4:0.5 E4:1 C4:1 D4:1 E4:0.5 F4:0.5 E4:1 D4:1 C4:1 D4:1 G3:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2',
+   bass:'C3:4 G2:4 C3:4 C3:2 G2:2 C3:4 G2:4 C3:4 G2:2 C3:2 G2:4 C3:4 G2:4 G2:4 C3:4 G2:4 C3:4 G2:2 C3:2'},
+  {cat:'찬송·크리스마스', lv:2, title:'고요한 밤 거룩한 밤', bpm:84,
+   mel:'G4:1.5 A4:0.5 G4:1 E4:3 G4:1.5 A4:0.5 G4:1 E4:3 D5:2 D5:1 B4:3 C5:2 C5:1 G4:3 A4:2 A4:1 C5:1.5 B4:0.5 A4:1 G4:1.5 A4:0.5 G4:1 E4:3 A4:2 A4:1 C5:1.5 B4:0.5 A4:1 G4:1.5 A4:0.5 G4:1 E4:3 D5:2 D5:1 F5:1.5 D5:0.5 B4:1 C5:3 E5:3 C5:1.5 G4:0.5 E4:1 G4:1.5 F4:0.5 D4:1 C4:3',
+   bass:'C3:3 C3:3 C3:3 C3:3 G2:3 G2:3 C3:3 C3:3 F2:3 F2:3 C3:3 C3:3 F2:3 F2:3 C3:3 C3:3 G2:3 G2:3 C3:3 C3:3 C3:3 G2:3 C3:3'},
+  {cat:'찬송·크리스마스', lv:2, title:'기쁘다 구주 오셨네', bpm:92,
+   mel:'C5:1 B4:0.75 A4:0.25 G4:1.5 F4:0.5 E4:1 D4:1 C4:1.5 G4:0.5 A4:1.5 A4:0.5 B4:1.5 B4:0.5 C5:3 C5:0.5 B4:0.5 A4:0.5 G4:0.5 G4:0.75 F4:0.25 E4:0.5 C5:0.5 C5:0.5 B4:0.5 A4:0.5 G4:0.5 G4:0.75 F4:0.25 E4:0.5 E4:0.5 E4:0.5 E4:0.5 E4:0.5 E4:0.25 F4:0.25 G4:1.5 F4:0.25 E4:0.25 D4:0.5 D4:0.5 D4:0.5 D4:0.25 E4:0.25 F4:1.5 E4:0.25 D4:0.25 C4:0.5 C5:1 A4:0.5 G4:0.75 F4:0.25 E4:0.5 F4:0.5 E4:1 D4:1 C4:2'},
+  {cat:'찬송·크리스마스', lv:2, title:'징글벨', bpm:120,
+   mel:'E4:1 E4:1 E4:2 E4:1 E4:1 E4:2 E4:1 G4:1 C4:1.5 D4:0.5 E4:4 F4:1 F4:1 F4:1.5 F4:0.5 F4:1 E4:1 E4:1 E4:0.5 E4:0.5 E4:1 D4:1 D4:1 E4:1 D4:2 G4:2 E4:1 E4:1 E4:2 E4:1 E4:1 E4:2 E4:1 G4:1 C4:1.5 D4:0.5 E4:4 F4:1 F4:1 F4:1.5 F4:0.5 F4:1 E4:1 E4:1 E4:0.5 E4:0.5 G4:1 G4:1 F4:1 D4:1 C4:4'},
+  {cat:'찬송·크리스마스', lv:1, title:'예수 사랑하심은', bpm:96,
+   mel:'G4:1 E4:1 E4:1 D4:1 E4:1 G4:1 G4:2 A4:1 A4:1 C5:1 A4:1 A4:1 G4:1 G4:2 G4:1 E4:1 E4:1 D4:1 E4:1 G4:1 G4:2 A4:1 A4:1 G4:1 C4:1 E4:1 D4:1 C4:2 G4:2 E4:1 G4:1 A4:1 C5:3 G4:2 E4:1 C4:1 E4:1 D4:3 G4:2 E4:1 G4:1 A4:1 C5:3 A4:1 G4:1 C4:1 E4:1 D4:1 C4:3',
+   bass:'C3:4 C3:4 F2:4 C3:4 C3:4 C3:4 F2:2 C3:2 G2:2 C3:2 C3:4 F2:4 C3:4 G2:4 C3:4 F2:4 F2:2 C3:2 G2:2 C3:2'},
+  {cat:'찬송·크리스마스', lv:2, title:'나 같은 죄인 살리신 (Amazing Grace)', bpm:80,
+   mel:'D4:1 G4:2 B4:0.5 G4:0.5 B4:2 A4:1 G4:2 E4:1 D4:2 D4:1 G4:2 B4:0.5 G4:0.5 B4:2 A4:1 D5:5 B4:1 D5:1.5 B4:0.5 D5:0.5 B4:0.5 G4:2 D4:1 E4:1.5 G4:0.5 G4:0.5 E4:0.5 D4:2 D4:1 G4:2 B4:0.5 G4:0.5 B4:2 A4:1 G4:3'},
+];
+const NOTE_PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function parseSeq(str, bpm, hand){
+  const out=[]; let beat=0; const spb=60/bpm;
+  for(const tok of (str||'').trim().split(/\s+/)){
+    const [n,b]=tok.split(':'); const len=parseFloat(b)||1;
+    if(n!=='R'){ const m=/^([A-G])([#b]?)(-?\d)$/.exec(n); if(m){ const p=12*(+m[3]+1)+NOTE_PC[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0); out.push({t:+(beat*spb).toFixed(3), d:+Math.max(0.1,len*spb*0.92).toFixed(3), p, v:0.8, ...(hand?{forceHand:hand}:{})}); } }
+    beat+=len;
+  }
+  return {notes:out, beats:beat};
+}
+function sampleSong(s){
+  const m=parseSeq(s.mel, s.bpm, 'R'), b=parseSeq(s.bass, s.bpm, 'L');
+  const notes=[...m.notes, ...b.notes].sort((a,c)=>a.t-c.t||c.p-a.p);
+  return { id:'sample-'+s.title, title:s.title, created:Date.now(), duration:Math.max(m.beats,b.beats)*60/s.bpm+1, notes, audio:null, offset:0, sample:true, bpm:s.bpm };
+}
+function renderSamples(){
+  const cats=[...new Set(SAMPLES.map(s=>s.cat))];
+  $('#samples').innerHTML=cats.map(c=>`<div class="cat">${c}</div><div class="chips">${
+    SAMPLES.map((s,i)=>s.cat===c?`<button class="chip" data-sample="${i}"><span class="lv l${s.lv}">${['','쉬움','보통','어려움'][s.lv]}</span>${esc(s.title)}${s.bass?' <small>· 양손</small>':''}</button>`:'').join('')}</div>`).join('');
+}
+$('#samples').addEventListener('click', e=>{ const b=e.target.closest('[data-sample]'); if(b) openSong(sampleSong(SAMPLES[+b.dataset.sample]), null); });
+
+/* ======================= 악보(MusicXML) → 음표 ======================= */
+async function importMusicXml(f, name){
+  busy(true,'악보 읽는 중…', f.name);
+  let xml;
+  if(/\.mxl$/i.test(f.name)){
+    const zip=await JSZip.loadAsync(f); let path=null; const cont=zip.file('META-INF/container.xml');
+    if(cont){ const m=/full-path="([^"]+)"/.exec(await cont.async('string')); if(m) path=m[1]; }
+    if(!path) path=Object.keys(zip.files).find(n=>/\.(xml|musicxml)$/i.test(n)&&!/^META-INF/.test(n));
+    xml=await zip.file(path).async('string');
+  } else xml=await f.text();
+  const doc=new DOMParser().parseFromString(xml,'application/xml');
+  if(doc.querySelector('parsererror')) throw new Error('MusicXML 형식이 아니에요');
+  const title=(doc.querySelector('work-title')||doc.querySelector('movement-title')||{}).textContent||name;
+  const {notes, duration}=parseMusicXml(doc);
+  if(!notes.length) throw new Error('악보에서 음표를 찾지 못했어요');
+  const song={ id:'s'+Date.now(), title:title.trim()||name, created:Date.now(), duration, notes, audio:null, offset:0 };
+  try{ await DB.put(song); }catch(e){}
+  busy(false); renderSongs(); openSong(song,null);
+}
+function parseMusicXml(doc){
+  const notes=[]; let tempo=null; let maxT=0;
+  const parts=[...doc.querySelectorAll('part')];
+  // 템포 지도 (첫 성부 기준): [{beat, bpm}]
+  parts.forEach((part, pi)=>{
+    let div=1, pos=0, lastStart=0; const tempos=[]; const ties={};
+    let bpm=100;
+    for(const m of part.querySelectorAll(':scope > measure')){
+      for(const el of m.children){
+        const tag=el.tagName;
+        if(tag==='attributes'){ const d=el.querySelector('divisions'); if(d) div=+d.textContent||div; }
+        else if(tag==='sound' && el.getAttribute('tempo')){ bpm=+el.getAttribute('tempo'); if(pi===0 && tempo===null) tempo=bpm; }
+        else if(tag==='direction'){ const sd=el.querySelector('sound[tempo]'); const pm=el.querySelector('metronome per-minute'); const tv=sd?+sd.getAttribute('tempo'):(pm?+pm.textContent:null); if(tv){ bpm=tv; if(pi===0 && tempo===null) tempo=tv; } }
+        else if(tag==='backup'){ pos-=+(el.querySelector('duration')||{}).textContent||0; }
+        else if(tag==='forward'){ pos+=+(el.querySelector('duration')||{}).textContent||0; }
+        else if(tag==='note'){
+          if(el.querySelector('grace')) continue;
+          const dur=+(el.querySelector(':scope > duration')||{}).textContent||0;
+          const isChord=!!el.querySelector(':scope > chord');
+          const start=isChord?lastStart:pos;
+          if(!isChord){ lastStart=pos; pos+=dur; }
+          const pitch=el.querySelector('pitch');
+          if(!pitch || el.querySelector(':scope > rest')) continue;
+          const step=pitch.querySelector('step').textContent, oct=+pitch.querySelector('octave').textContent, alt=+((pitch.querySelector('alter')||{}).textContent||0);
+          const p=12*(oct+1)+NOTE_PC[step]+Math.round(alt);
+          const staff=+((el.querySelector(':scope > staff')||{}).textContent||1);
+          const tieStart=!!el.querySelector('tie[type="start"]'), tieStop=!!el.querySelector('tie[type="stop"]');
+          const key=pi+':'+p;
+          const beatStart=start/div, beatLen=dur/div;
+          if(tieStop && ties[key]){ ties[key].beatLen+=beatLen; if(!tieStart) delete ties[key]; continue; }
+          const n={beatStart, beatLen, p, part:pi, staff};
+          notes.push(n);
+          if(tieStart) ties[key]=n;
+        }
+      }
+    }
+  });
+  const bpm=tempo||100, spb=60/bpm;
+  const out=notes.map(n=>{ const t=n.beatStart*spb, d=Math.max(0.1,n.beatLen*spb*0.95); maxT=Math.max(maxT,t+d);
+    return {t:+t.toFixed(3), d:+d.toFixed(3), p:n.p, v:0.8, forceHand: n.staff>=2 ? 'L' : (n.part===0?'R':undefined)}; })
+    .sort((a,b)=>a.t-b.t||b.p-a.p);
+  return {notes:out, duration:maxT+1};
+}
+function showScoreGuide(name){
+  $('#guide').classList.add('show');
+  $('#guideLead').textContent=`「${name}」은 PDF·사진 악보예요. 먼저 MusicXML로 바꾼 다음 올려 주세요.`;
+}
+
 /* ======================= 연습용 음표 고르기 ======================= */
 // 멜로디: 같은 순간에 울리는 음 중 가장 높은 음만 (MR의 반주·베이스는 빠짐)
 function pickMelody(notes){
+  if(notes.some(n=>n.forceHand)){ // 샘플·악보: 오른손 성부를 그대로, 화음은 가장 높은 음만
+    const r=notes.filter(n=>n.forceHand==='R' || (!n.forceHand && n.p>=60)); const out=[];
+    for(const n of r){ const last=out[out.length-1]; if(last && Math.abs(n.t-last.t)<0.02){ if(n.p>last.p) out[out.length-1]=n; continue; } out.push(n); }
+    return out.map(n=>({...n,hand:'R'}));
+  }
   const cand=notes.filter(n=>n.p>=55 && n.v>=0.25);
   const out=[];
   for(const n of cand){
@@ -314,6 +473,11 @@ function pickMelody(notes){
 }
 // 양손: 멜로디(오른손) + 낮은 음 한 개(왼손), 박마다 최대 3음
 function pickBoth(notes){
+  if(notes.some(n=>n.forceHand)){
+    const mel=pickMelody(notes); const l=notes.filter(n=>n.forceHand==='L' || (!n.forceHand && n.p<60)); const bass=[];
+    for(const n of l){ const last=bass[bass.length-1]; if(last && Math.abs(n.t-last.t)<0.02){ if(n.p<last.p) bass[bass.length-1]=n; continue; } bass.push(n); }
+    return [...mel, ...bass.map(n=>({...n,hand:'L'}))].sort((a,b)=>a.t-b.t);
+  }
   const mel=pickMelody(notes);
   const bass=[];
   for(const n of notes.filter(n=>n.p<55 && n.p>=36 && n.v>=0.3)){
@@ -348,6 +512,7 @@ function openSong(song, rawData){
   if(song.audio){ cur.url=URL.createObjectURL(song.audio); const a=new Audio(cur.url); a.preload='auto'; a.preservesPitch=true; a.mozPreservesPitch=true; a.webkitPreservesPitch=true; a.volume=+$('#mrVol').value; cur.audioEl=a; }
   $('#sens').value=song.sens||0.4; $('#sensVal').textContent=raw?`(${song.sens||0.4})`:'(이 곡은 조절 불가)'; $('#sens').disabled=!raw;
   $('#offVal').textContent=(song.offset||0).toFixed(2)+'초';
+  $('#guideSnd').checked=!song.audio;   // MR이 없는 곡(샘플·악보)은 멜로디 소리를 켜서 들으며 연습
   $('#home').classList.add('hidden'); $('#play').classList.remove('hidden');
   prepare(); resize(); reset();
 }
@@ -612,12 +777,13 @@ $('#moreBtn').onclick=()=>{ if(cur.playing) togglePlay(); $('#more').classList.a
 $('#moreClose').onclick=()=>$('#more').classList.remove('show');
 $('#sens').oninput=()=>{ $('#sensVal').textContent=`(${$('#sens').value})`; };
 $('#sens').onchange=async ()=>{ if(!raw) return; cur.song.sens=+$('#sens').value; cur.song.notes=notesFromRaw(cur.song.sens); try{ await DB.put(cur.song); }catch(e){} prepare(); layoutKeys(); reset(); };
-function setOffset(d){ cur.song.offset=Math.round(((cur.song.offset||0)+d)*100)/100; $('#offVal').textContent=cur.song.offset.toFixed(2)+'초'; DB.put(cur.song).catch(()=>{}); draw(); }
+function setOffset(d){ cur.song.offset=Math.round(((cur.song.offset||0)+d)*100)/100; $('#offVal').textContent=cur.song.offset.toFixed(2)+'초'; if(!cur.song.sample) DB.put(cur.song).catch(()=>{}); draw(); }
 $('#offM').onclick=()=>setOffset(-0.05); $('#offP').onclick=()=>setOffset(0.05);
 $('#saveJson').onclick=exportPractice;
 $('#saveMidi').onclick=exportMidi;
 $('#midiConnect').onclick=connectMidi;
 
+renderSamples();
 renderSongs();
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('../sw.js').catch(()=>{});
 </script>
