@@ -1,0 +1,8 @@
+{
+  "appId": "com.keychanger.app",
+  "appName": "키 체인저",
+  "webDir": "www",
+  "backgroundColor": "#f6f4ef",
+  "ios": { "contentInset": "always" },
+  "android": { "allowMixedContent": false }
+}

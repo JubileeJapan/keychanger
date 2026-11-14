@@ -1,0 +1,6 @@
+node_modules/
+mobile/www/
+mobile/android/
+mobile/ios/
+.wrangler/
+.DS_Store

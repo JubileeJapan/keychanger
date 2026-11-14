@@ -1,0 +1,22 @@
+name = "keychanger-ocr"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# 사진 읽기를 쓸 수 있는 주소들 (쉼표로 구분)
+# - 홈페이지 주소 (GitHub Pages)
+# - capacitor://localhost, https://localhost : iOS·안드로이드 앱
+ALLOWED_ORIGINS = "https://YOUR_GITHUB_ID.github.io,capacitor://localhost,https://localhost"
+# 더 싸게 쓰려면 claude-haiku-5-5 (정확도는 조금 낮아요)
+MODEL = "claude-sonnet-5-5"
+
+# IP 하나당 1분에 10번까지
+[[ratelimits]]
+name = "OCR_LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
+# API 키는 여기에 쓰지 말고 아래 명령으로 등록하세요:
+#   npx wrangler secret put ANTHROPIC_API_KEY
